@@ -1684,12 +1684,51 @@ TGUI_TextField::~TGUI_TextField(void)
 
 // --
 
+int TGUI_Frame::bar_height(void)
+{
+	return al_get_font_line_height(tgui::getFont()) + 6;
+}
+
+void TGUI_Frame::mouseDown(int rel_x, int rel_y, int abs_x, int abs_y, int mb)
+{
+	int top = al_get_font_line_height(tgui::getFont()) + 6;
+
+	if (rel_x >= 0 && rel_y >= 0 && rel_x < width && rel_y < top) {
+		dragging = true;
+		drag_x = abs_x;
+		drag_y = abs_y;
+	}
+}
+
+void TGUI_Frame::mouseUp(int rel_x, int rel_y, int abs_x, int abs_y, int mb)
+{
+	dragging = false;
+}
+
+void TGUI_Frame::mouseMove(int rel_x, int rel_y, int abs_x, int abs_y)
+{
+	if (dragging) {
+		int dx = abs_x - drag_x;
+		int dy = abs_y - drag_y;
+		x += dx;
+		y += dy;
+		int scr_w, scr_h;
+		tgui::getScreenSize(&scr_w, &scr_h);
+		if (x < 0) x = 0;
+		if (x > scr_w-width-1) x = scr_w-width-1;
+		if (y < 0) y = 0;
+		if (y > scr_h-height-1) y = scr_h-height-1;
+		drag_x = abs_x;
+		drag_y = abs_y;
+	}
+}
+
 void TGUI_Frame::draw(int abs_x, int abs_y)
 {
 	ALLEGRO_COLOR fore = al_color_name("yellow");
 	ALLEGRO_COLOR back = al_color_name("purple");
 
-	int top = al_get_font_line_height(tgui::getFont()) + 6;
+	int top = bar_height();
 
 	al_draw_filled_rectangle(abs_x, abs_y+top, abs_x+width,
 		abs_y+height, back);
@@ -1704,7 +1743,8 @@ void TGUI_Frame::draw(int abs_x, int abs_y)
 }
 
 TGUI_Frame::TGUI_Frame(std::string title, int x, int y, int width, int height) :
-	title(title)
+	title(title),
+	dragging(false)
 {
 	this->x = x;
 	this->y = y;

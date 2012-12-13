@@ -340,7 +340,12 @@ protected:
 class TGUI_Frame : public TGUI_Extended_Widget
 {
 public:
+	void mouseDown(int rel_x, int rel_y, int abs_x, int abs_y, int mb);
+	void mouseUp(int rel_x, int rel_y, int abs_x, int abs_y, int mb);
+	void mouseMove(int rel_x, int rel_y, int abs_x, int abs_y);
 	void draw(int abs_x, int abs_y);
+
+	int bar_height(void);
 
 	TGUI_Frame(std::string title, int x, int y, int width, int height);
 	virtual ~TGUI_Frame(void);
@@ -348,6 +353,8 @@ public:
 protected:
 
 	std::string title;
+	bool dragging;
+	int drag_x, drag_y;
 };
 
 class TGUI_Label : public TGUI_Extended_Widget
