@@ -52,7 +52,7 @@ tgui::TGUIWidget *TGUI_Icon::update(void)
 	return NULL;
 }
 
-void TGUI_Icon::set_clear_color(ALLEGRO_COLOR c)
+void TGUI_Icon::setClearColor(ALLEGRO_COLOR c)
 {
 	clear_color = c;
 }
@@ -629,7 +629,7 @@ void TGUI_Splitter::set_widget(int index, TGUIWidget *widget)
 	widgets[index] = widget;
 }
 
-void TGUI_Splitter::set_clear_color(ALLEGRO_COLOR c)
+void TGUI_Splitter::setClearColor(ALLEGRO_COLOR c)
 {
 	clear_color = c;
 }

@@ -33,7 +33,7 @@ public:
 	void mouseDown(int rel_x, int rel_y, int abs_x, int abs_y, int mb);
 	tgui::TGUIWidget *update(void);
 
-	void set_clear_color(ALLEGRO_COLOR c);
+	void setClearColor(ALLEGRO_COLOR c);
 
 	// image gets destroyed in destructor
 	TGUI_Icon(ALLEGRO_BITMAP *image, int x, int y, int flags);
@@ -78,7 +78,7 @@ public:
 	int get_size(int index);
 	void set_size(int index, int size);
 	void set_widget(int index, TGUIWidget *widget);
-	void set_clear_color(ALLEGRO_COLOR c);
+	void setClearColor(ALLEGRO_COLOR c);
 	void layout(void);
 	std::vector<tgui::TGUIWidget *> &getWidgets(void);
 	void setDrawLines(bool drawLines);
