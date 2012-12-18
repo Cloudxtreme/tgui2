@@ -1177,6 +1177,23 @@ TGUI_MenuBar::TGUI_MenuBar(
 
 // --
 
+void TGUI_ScrollPane::chainDraw(void)
+{
+	int abs_x, abs_y;
+	determineAbsolutePosition(this, &abs_x, &abs_y);
+	draw(abs_x, abs_y);
+}
+
+
+tgui::TGUIWidget *TGUI_ScrollPane::chainMouseDown(int rel_x, int rel_y, int abs_x, int abs_y, int mb)
+{
+	if (pointOnWidget(this, abs_x, abs_y)) {
+		mouseDown(rel_x, rel_y, abs_x, abs_y, mb);
+		return this;
+	}
+	return NULL;
+}
+
 void TGUI_ScrollPane::keyDown(int keycode)
 {
 	child->keyDown(keycode);
@@ -1200,7 +1217,11 @@ void TGUI_ScrollPane::draw(int abs_x, int abs_y)
 	if (offsx < 0) offsx = 0;
 	if (offsy < 0) offsy = 0;
 
+	tgui::setClip(abs_x, abs_y, width, height);
+
 	child->draw(abs_x-offsx, abs_y-offsy);
+
+	tgui::clearClip();
 
 	int x1, y1, x2, y2;
 	get_vtab_details(&x1, &y1, &x2, &y2);
@@ -1218,7 +1239,7 @@ void TGUI_ScrollPane::draw(int abs_x, int abs_y)
 		abs_y+y1,
 		abs_x+x2,
 		abs_y+y2,
-		al_color_name("yellow")
+		al_color_name("gold")
 	);
 	
 	get_htab_details(&x1, &y1, &x2, &y2);
@@ -1236,7 +1257,7 @@ void TGUI_ScrollPane::draw(int abs_x, int abs_y)
 		abs_y+y1,
 		abs_x+x2,
 		abs_y+y2,
-		al_color_name("yellow")
+		al_color_name("gold")
 	);
 }
 
@@ -1684,7 +1705,7 @@ TGUI_TextField::~TGUI_TextField(void)
 
 // --
 
-int TGUI_Frame::bar_height(void)
+int TGUI_Frame::barHeight(void)
 {
 	return al_get_font_line_height(tgui::getFont()) + 6;
 }
@@ -1728,7 +1749,7 @@ void TGUI_Frame::draw(int abs_x, int abs_y)
 	ALLEGRO_COLOR fore = al_color_name("yellow");
 	ALLEGRO_COLOR back = al_color_name("purple");
 
-	int top = bar_height();
+	int top = barHeight();
 
 	al_draw_filled_rectangle(abs_x, abs_y+top, abs_x+width,
 		abs_y+height, back);
@@ -1776,6 +1797,61 @@ TGUI_Label::TGUI_Label(std::string text, ALLEGRO_COLOR color, int x, int y, int 
 
 TGUI_Label::~TGUI_Label(void)
 {
+}
+
+TGUI_List::TGUI_List(int x, int y, int width)
+{
+	this->x = x;
+	this->y = y;
+	this->width = width;
+	height = 0;
+	selected = 0;
+}
+
+TGUI_List::~TGUI_List()
+{
+}
+
+void TGUI_List::mouseDown(int rel_x, int rel_y, int abs_x, int abs_y, int mb)
+{
+	if (rel_y >= 0) {
+		int lh = al_get_font_line_height(tgui::getFont());
+		selected = rel_y / lh;
+	}
+}
+
+const std::vector<std::string> &TGUI_List::getLabels()
+{
+	return labels;
+}
+
+void TGUI_List::setLabels(const std::vector<std::string> &labels)
+{
+	this->labels = labels;
+	height = al_get_font_line_height(tgui::getFont()) * labels.size();
+}
+
+void TGUI_List::draw(int abs_x, int abs_y)
+{
+	int lh = al_get_font_line_height(tgui::getFont());
+
+	for (size_t i = 0; i < labels.size(); i++) {
+		ALLEGRO_COLOR fore;
+		ALLEGRO_COLOR back;
+		if (i == selected) {
+			fore = al_color_name("yellow");
+			back = al_color_name("purple");
+		}
+		else {
+			fore = al_color_name("black");
+			back = al_color_name("yellow");
+		}
+		int yy = abs_y + lh*i;
+		al_draw_filled_rectangle(abs_x, yy, abs_x+width, yy+lh, back);
+		al_draw_text(tgui::getFont(), fore, abs_x+2, yy, 0, labels[i].c_str());
+		yy += (lh-1);
+		al_draw_line(abs_x+0.5, yy+0.5, abs_x+width+0.5, yy+0.5, al_color_name("gold"), 1);
+	}
 }
 
 /*

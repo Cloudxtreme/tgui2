@@ -612,8 +612,6 @@ TGUIWidget *TGUIWidget::chainMouseDown(int rel_x, int rel_y, int abs_x, int abs_
 
 	if (!used) {
 		// handle it within outself
-		int xx, yy;
-		determineAbsolutePosition(this, &xx, &yy);
 		if (pointOnWidget(this, abs_x, abs_y)) {
 			mouseDown(rel_x, rel_y, abs_x, abs_y, mb);
 			ret = this;

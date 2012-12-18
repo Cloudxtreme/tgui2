@@ -251,6 +251,8 @@ public:
 	void mouseMove(int rel_x, int rel_y, int abs_x, int abs_y);
 	void mouseUp(int rel_x, int rel_y, int abs_x, int abs_y, int mb);
 	void mouseMoveAll(TGUIWidget *leftOut, int abs_x, int abs_y);
+	void chainDraw(void);
+	TGUIWidget *chainMouseDown(int rel_x, int rel_y, int abs_x, int abs_y, int mb);
 
 	void get_values(float *ox, float *oy);
 	void setValues(float ox, float oy);
@@ -345,7 +347,7 @@ public:
 	void mouseMove(int rel_x, int rel_y, int abs_x, int abs_y);
 	void draw(int abs_x, int abs_y);
 
-	int bar_height(void);
+	int barHeight(void);
 
 	TGUI_Frame(std::string title, int x, int y, int width, int height);
 	virtual ~TGUI_Frame(void);
@@ -370,6 +372,27 @@ protected:
 	std::string text;
 	ALLEGRO_COLOR color;
 	int flags;
+};
+
+class TGUI_List : public TGUI_Extended_Widget
+{
+public:
+	void draw(int abs_x, int abs_y);
+
+	const std::vector<std::string> &getLabels();
+	void setLabels(const std::vector<std::string> &labels);
+	void mouseDown(int rel_x, int rel_y, int abs_x, int abs_y, int mb);
+
+	int getSelected(void) { return selected; }
+	void setSelected(int selected) { this->selected = selected; }
+
+	TGUI_List(int x, int y, int width);
+	virtual ~TGUI_List();
+
+protected:
+
+	std::vector<std::string> labels;
+	int selected;
 };
 
 #endif // _WIDGETS_H
