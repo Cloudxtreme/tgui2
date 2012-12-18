@@ -273,8 +273,8 @@ TGUIWidget *getNewWidgetParent(void)
 
 void centerWidget(TGUIWidget* widget, int x, int y)
 {
-	widget->setX(x - (widget->getWidth() / 2));
-	widget->setY(y - (widget->getHeight() / 2));
+	widget->setX(x - (int)(widget->getWidth() / 2));
+	widget->setY(y - (int)(widget->getHeight() / 2));
 }
 
 void setScale(float xscale, float yscale)
@@ -914,6 +914,49 @@ bool isKeyDown(int keycode) {
 ALLEGRO_DISPLAY *getDisplay(void)
 {
 	return display;
+}
+
+void doModal(ALLEGRO_EVENT_QUEUE *queue, bool (*callback)(TGUIWidget *widget))
+{
+	int dw = al_get_display_width(al_get_current_display());
+	int dh = al_get_display_height(al_get_current_display());
+	ALLEGRO_BITMAP *back = al_create_bitmap(dw, dh);
+	ALLEGRO_BITMAP *target = al_get_target_bitmap();
+	al_set_target_bitmap(back);
+	al_draw_bitmap(al_get_backbuffer(al_get_current_display()), 0, 0, 0);
+	al_set_target_bitmap(target);
+
+	while (1) {
+		ALLEGRO_EVENT event;
+		if (al_wait_for_event_timed(queue, &event, 1.0/60.0)) {
+			handleEvent(&event);
+		}
+
+		TGUIWidget *w = update();
+
+		if (callback(w)) {
+			break;
+		}
+
+		al_clear_to_color(al_map_rgb_f(0.0f, 0.0f, 0.0f));
+		al_draw_tinted_bitmap(back, al_map_rgba_f(0.5f, 0.5f, 0.5f, 0.5f), 0, 0, 0);
+	
+		int abs_x, abs_y;
+		for (unsigned int i = 0; i < preDrawWidgets.size(); i++) {
+			determineAbsolutePosition(preDrawWidgets[i], &abs_x, &abs_y);
+			preDrawWidgets[i]->preDraw(abs_x, abs_y);
+		}
+		::drawRect(stack[0], 0, 0, screenWidth, screenHeight);
+		for (unsigned int i = 0; i < postDrawWidgets.size(); i++) {
+			determineAbsolutePosition(postDrawWidgets[i], &abs_x, &abs_y);
+			postDrawWidgets[i]->postDraw(abs_x, abs_y);
+		}
+
+		al_flip_display();
+		al_rest(1.0/60.0);
+	}
+
+	al_destroy_bitmap(back);
 }
 
 } // end namespace tgui

@@ -1533,8 +1533,8 @@ void TGUI_Button::draw(int abs_x, int abs_y)
 	al_draw_line(x+width-0.5, y+0.5, x+width-0.5, y+height-0.5, al_color_name("black"), 1);
 
 	al_draw_text(tgui::getFont(), fore,
-		x+width/2-al_get_text_width(tgui::getFont(), text.c_str())/2,
-		y+height/2-al_get_font_line_height(tgui::getFont())/2,
+		x+(int)width/2-al_get_text_width(tgui::getFont(), text.c_str())/2,
+		y+(int)height/2-al_get_font_line_height(tgui::getFont())/2,
 		0, text.c_str());
 }
 
@@ -1707,12 +1707,12 @@ TGUI_TextField::~TGUI_TextField(void)
 
 int TGUI_Frame::barHeight(void)
 {
-	return al_get_font_line_height(tgui::getFont()) + 6;
+	return al_get_font_line_height(tgui::getFont()) + TITLE_PADDING*2;
 }
 
 void TGUI_Frame::mouseDown(int rel_x, int rel_y, int abs_x, int abs_y, int mb)
 {
-	int top = al_get_font_line_height(tgui::getFont()) + 6;
+	int top = al_get_font_line_height(tgui::getFont()) + TITLE_PADDING*2;
 
 	if (rel_x >= 0 && rel_y >= 0 && rel_x < width && rel_y < top) {
 		dragging = true;
@@ -1760,7 +1760,7 @@ void TGUI_Frame::draw(int abs_x, int abs_y)
 		abs_y+top, fore);
 
 	al_draw_text(tgui::getFont(), al_color_name("black"), abs_x+width/2,
-		abs_y+3, ALLEGRO_ALIGN_CENTRE, title.c_str());
+		abs_y+TITLE_PADDING, ALLEGRO_ALIGN_CENTRE, title.c_str());
 }
 
 TGUI_Frame::TGUI_Frame(std::string title, int x, int y, int width, int height) :
@@ -1838,12 +1838,11 @@ void TGUI_List::draw(int abs_x, int abs_y)
 	for (size_t i = 0; i < labels.size(); i++) {
 		ALLEGRO_COLOR fore;
 		ALLEGRO_COLOR back;
+		fore = al_color_name("black");
 		if (i == selected) {
-			fore = al_color_name("yellow");
-			back = al_color_name("purple");
+			back = al_color_name("white");
 		}
 		else {
-			fore = al_color_name("black");
 			back = al_color_name("yellow");
 		}
 		int yy = abs_y + lh*i;

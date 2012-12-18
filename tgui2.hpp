@@ -209,6 +209,9 @@ ALLEGRO_EVENT_SOURCE *getEventSource(void);
 bool isKeyDown(int keycode);
 void setScreenSize(int w, int h);
 ALLEGRO_DISPLAY *getDisplay(void);
+// Callback should return true to cancel dialog, it will get each widget
+// returned from tgui::update
+void doModal(ALLEGRO_EVENT_QUEUE *queue, bool (*callback)(TGUIWidget *widget));
 
 } // End namespace tgui
 

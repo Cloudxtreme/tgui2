@@ -342,6 +342,8 @@ protected:
 class TGUI_Frame : public TGUI_Extended_Widget
 {
 public:
+	static const int TITLE_PADDING = 3;
+
 	void mouseDown(int rel_x, int rel_y, int abs_x, int abs_y, int mb);
 	void mouseUp(int rel_x, int rel_y, int abs_x, int abs_y, int mb);
 	void mouseMove(int rel_x, int rel_y, int abs_x, int abs_y);
