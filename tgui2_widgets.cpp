@@ -10,6 +10,20 @@
 
 static void getVisibleSubMenus(TGUI_Splitter *root, std::vector<TGUI_SubMenuItem *> &subMenus, int depth, int maxDepth);
 
+static ALLEGRO_COLOR fore;
+static ALLEGRO_COLOR back;
+static ALLEGRO_COLOR back_hilite;
+static ALLEGRO_COLOR back_darker;
+bool colors_set = false;
+
+static void setDefaultColors()
+{
+	if (colors_set) {
+		return;
+	}
+
+	tguiWidgetsSetColors(al_color_name("yellow"), al_color_name("purple"));
+}
 
 TGUI_Extended_Widget::TGUI_Extended_Widget(void) :
 	resizable(false)
@@ -27,6 +41,8 @@ bool TGUI_Icon::acceptsFocus(void)
 
 void TGUI_Icon::draw(int abs_x, int abs_y)
 {
+	setDefaultColors();
+
 	float r, g, b, a;
 	al_unmap_rgba_f(clear_color, &r, &g, &b, &a);
 	if (a != 0) {
@@ -68,7 +84,7 @@ TGUI_Icon::TGUI_Icon(ALLEGRO_BITMAP *image, int x, int y, int flags) :
 		this->width = al_get_bitmap_width(image);
 		this->height = al_get_bitmap_height(image);
 	}
-	clear_color = al_color_name("purple");
+	clear_color = back;
 }
 
 TGUI_Icon::~TGUI_Icon(void)
@@ -81,10 +97,12 @@ TGUI_Icon::~TGUI_Icon(void)
 
 void TGUI_IconButton::draw(int abs_x, int abs_y)
 {
+	setDefaultColors();
+
 	al_draw_filled_rectangle(abs_x, abs_y, abs_x+width, abs_y+height,
-		al_color_name("purple"));
-	al_draw_rectangle(abs_x+0.5, abs_y+0.5, abs_x+0.5+width,
-		abs_y+0.5+height, al_color_name("yellow"), 1);
+		back);
+	al_draw_rectangle(abs_x+0.5, abs_y+0.5, abs_x-0.5+width,
+		abs_y-0.5+height, fore, 1);
 
 	TGUI_Icon::draw(abs_x+ico_ofs_x, abs_y+ico_ofs_y);
 }
@@ -155,6 +173,8 @@ void TGUI_Splitter::set_resizable(int split, bool value)
 
 void TGUI_Splitter::draw(int abs_x, int abs_y)
 {
+	setDefaultColors();
+
 	int xx = abs_x;
 	int yy = abs_y;
 
@@ -195,10 +215,10 @@ void TGUI_Splitter::draw(int abs_x, int abs_y)
 
 		if (drawLines) {
 			if (direction == TGUI_VERTICAL) {
-				al_draw_line(xx, yy, xx+w, yy, al_color_name("black"), 1);
+				al_draw_line(xx+0.5, yy+0.5, xx+w-0.5, yy+0.5, al_color_name("black"), 1);
 			}
 			else {
-				al_draw_line(xx+1, yy, xx+1, yy+h, al_color_name("black"), 1);
+				al_draw_line(xx+1+0.5, yy+0.5, xx+1+0.5, yy+h-0.5, al_color_name("black"), 1);
 			}
 		}
 
@@ -788,16 +808,18 @@ void TGUI_TextMenuItem::setMenuBar(TGUI_MenuBar *mb)
 	
 void TGUI_TextMenuItem::draw(int abs_x, int abs_y)
 {
+	setDefaultColors();
+
 	ALLEGRO_COLOR fore;
 	ALLEGRO_COLOR back;
+	
+	fore = al_color_name("black");
 
 	if (hover) {
-		fore = al_color_name("white");
-		back = al_color_name("purple");
+		back = al_color_name("white");
 	}
 	else {
-		fore = al_color_name("black");
-		back = al_color_name("yellow");
+		back = ::fore;
 	}
 
 	al_clear_to_color(back);
@@ -817,8 +839,8 @@ void TGUI_TextMenuItem::draw(int abs_x, int abs_y)
 	}
 	
 	// distinction for sub menus
-	al_draw_line(abs_x+1, abs_y, abs_x+1, abs_y+height, al_color_name("white"), 1);
-	al_draw_line(abs_x+2, abs_y, abs_x+2, abs_y+height, al_color_name("white"), 1);
+	al_draw_line(abs_x+1+0.5, abs_y+0.5, abs_x+1+0.5, abs_y+height-0.5, al_color_name("white"), 1);
+	al_draw_line(abs_x+2+0.5, abs_y+0.5, abs_x+2+0.5, abs_y+height-0.5, al_color_name("white"), 1);
 }
 
 tgui::TGUIWidget *TGUI_TextMenuItem::update(void)
@@ -864,6 +886,8 @@ TGUI_TextMenuItem::TGUI_TextMenuItem(std::string name, int shortcut_keycode) :
 	
 void TGUI_CheckMenuItem::draw(int abs_x, int abs_y)
 {
+	setDefaultColors();
+
 	TGUI_TextMenuItem::draw(abs_x, abs_y);
 
 	ALLEGRO_COLOR fore;
@@ -921,6 +945,8 @@ TGUI_CheckMenuItem::TGUI_CheckMenuItem(std::string name, int shortcut_keycode, b
 // --
 void TGUI_RadioMenuItem::draw(int abs_x, int abs_y)
 {
+	setDefaultColors();
+
 	TGUI_TextMenuItem::draw(abs_x, abs_y);
 
 	ALLEGRO_COLOR fore;
@@ -994,6 +1020,8 @@ void TGUI_SubMenuItem::close(void)
 
 void TGUI_SubMenuItem::draw(int abs_x, int abs_y)
 {
+	setDefaultColors();
+
 	TGUI_TextMenuItem::draw(abs_x, abs_y);
 
 	ALLEGRO_COLOR fore;
@@ -1111,7 +1139,9 @@ void TGUI_MenuBar::setSubMenuSplitters(TGUI_Splitter *root)
 
 void TGUI_MenuBar::draw(int abs_x, int abs_y)
 {
-	al_clear_to_color(al_color_name("purple"));
+	setDefaultColors();
+
+	al_clear_to_color(back);
 
 	int xx = abs_x+PADDING;
 	
@@ -1239,6 +1269,8 @@ void TGUI_ScrollPane::keyChar(int keycode, int unichar)
 	
 void TGUI_ScrollPane::draw(int abs_x, int abs_y)
 {
+	setDefaultColors();
+
 	int offsx = (child->getWidth()-(width-SCROLLBAR_THICKNESS)) * ox;
 	int offsy = (child->getHeight()-(height-SCROLLBAR_THICKNESS)) * oy;
 
@@ -1260,14 +1292,14 @@ void TGUI_ScrollPane::draw(int abs_x, int abs_y)
 		abs_y,
 		abs_x+width,
 		abs_y+height-SCROLLBAR_THICKNESS,
-		al_color_name("purple")
+		back
 	);
 	al_draw_filled_rectangle(
 		abs_x+x1,
 		abs_y+y1,
 		abs_x+x2,
 		abs_y+y2,
-		al_color_name("gold")
+		back_darker
 	);
 	
 	get_htab_details(&x1, &y1, &x2, &y2);
@@ -1278,14 +1310,14 @@ void TGUI_ScrollPane::draw(int abs_x, int abs_y)
 		abs_y+height-SCROLLBAR_THICKNESS,
 		abs_x+width-SCROLLBAR_THICKNESS,
 		abs_y+height,
-		al_color_name("purple")
+		back
 	);
 	al_draw_filled_rectangle(
 		abs_x+x1,
 		abs_y+y1,
 		abs_x+x2,
 		abs_y+y2,
-		al_color_name("gold")
+		back_darker
 	);
 }
 
@@ -1440,8 +1472,7 @@ TGUI_ScrollPane::TGUI_ScrollPane(tgui::TGUIWidget *child) :
 
 void TGUI_Slider::draw(int abs_x, int abs_y)
 {
-	ALLEGRO_COLOR fore = al_color_name("yellow");
-	ALLEGRO_COLOR back = al_color_name("purple");
+	setDefaultColors();
 
 	int x1, y1, w, h;
 	int lx, ly, lw, lh;
@@ -1469,7 +1500,7 @@ void TGUI_Slider::draw(int abs_x, int abs_y)
 
 	al_draw_filled_rectangle(x, y, x+width, y+height, back);
 	al_draw_rectangle(x+0.5, y+0.5, x-0.5+width, y-0.5+height, fore, 1);
-	al_draw_line(abs_x+lx+0.5, abs_y+ly+0.5, abs_x+lx+0.5+lw, abs_y+ly+0.5+lh, fore, 1);
+	al_draw_line(abs_x+lx+0.5, abs_y+ly+0.5, abs_x+lx-0.5+lw, abs_y+ly-0.5+lh, fore, 1);
 	al_draw_filled_rectangle(x1, y1, x1+w, y1+h, fore);
 }
 
@@ -1548,19 +1579,18 @@ TGUI_Slider::TGUI_Slider(int x, int y, int size, TGUI_Direction direction) :
 
 void TGUI_Button::draw(int abs_x, int abs_y)
 {
+	setDefaultColors();
+
 	int x = abs_x;
 	int y = abs_y;
 
-	ALLEGRO_COLOR fore = al_color_name("yellow");
-	ALLEGRO_COLOR back = al_color_name("purple");
-
 	al_draw_filled_rectangle(x, y, x+width, y+height, back);
-	al_draw_line(x+0.5, y+0.5, x+width-0.5, y+0.5, al_color_name("white"), 1);
-	al_draw_line(x+0.5, y+0.5, x+0.5, y+height-0.5, al_color_name("white"), 1);
-	al_draw_line(x+0.5, y+height-0.5, x+width-0.5, y+height-0.5, al_color_name("black"), 1);
-	al_draw_line(x+width-0.5, y+0.5, x+width-0.5, y+height-0.5, al_color_name("black"), 1);
+	al_draw_line(x+0.5, y+0.5, x+width-0.5, y+0.5, back_hilite, 1);
+	al_draw_line(x+0.5, y+0.5, x+0.5, y+height-0.5, back_hilite, 1);
+	al_draw_line(x+0.5, y+height-0.5, x+width+0.5, y+height-0.5, back_darker, 1); // little longer to cover pixel
+	al_draw_line(x+width-0.5, y+0.5, x+width-0.5, y+height-0.5, back_darker, 1);
 
-	al_draw_text(tgui::getFont(), fore,
+	al_draw_text(tgui::getFont(), al_color_name("black"),
 		x+(int)width/2-al_get_text_width(tgui::getFont(), text.c_str())/2,
 		y+(int)height/2-al_get_font_line_height(tgui::getFont())/2,
 		0, text.c_str());
@@ -1603,6 +1633,8 @@ bool TGUI_TextField::acceptsFocus(void)
 
 void TGUI_TextField::draw(int abs_x, int abs_y)
 {
+	setDefaultColors();
+
 	this->height = al_get_font_line_height(tgui::getFont()) + PADDING*2;
 
 	ALLEGRO_COLOR bgcolor;
@@ -1774,16 +1806,15 @@ void TGUI_Frame::mouseMove(int rel_x, int rel_y, int abs_x, int abs_y)
 
 void TGUI_Frame::draw(int abs_x, int abs_y)
 {
-	ALLEGRO_COLOR fore = al_color_name("yellow");
-	ALLEGRO_COLOR back = al_color_name("purple");
+	setDefaultColors();
 
 	int top = barHeight();
 
 	al_draw_filled_rectangle(abs_x, abs_y+top, abs_x+width,
 		abs_y+height, back);
 
-	al_draw_rectangle(abs_x+0.5, abs_y+0.5, abs_x+0.5+width,
-		abs_y+0.5+height, fore, 1);
+	al_draw_rectangle(abs_x+0.5, abs_y+0.5, abs_x-0.5+width,
+		abs_y-0.5+height, fore, 1);
 	al_draw_filled_rectangle(abs_x, abs_y, abs_x+width,
 		abs_y+top, fore);
 
@@ -1809,6 +1840,8 @@ TGUI_Frame::~TGUI_Frame(void)
 
 void TGUI_Label::draw(int abs_x, int abs_y)
 {
+	setDefaultColors();
+
 	al_draw_text(tgui::getFont(), color, abs_x, abs_y, flags, text.c_str());
 }
 
@@ -1861,27 +1894,38 @@ void TGUI_List::setLabels(const std::vector<std::string> &labels)
 
 void TGUI_List::draw(int abs_x, int abs_y)
 {
+	setDefaultColors();
+
 	int lh = al_get_font_line_height(tgui::getFont());
 
 	for (size_t i = 0; i < labels.size(); i++) {
 		ALLEGRO_COLOR fore;
 		ALLEGRO_COLOR back;
+		int yy = abs_y + lh*i;
 		fore = al_color_name("black");
 		if (i == selected) {
-			back = al_color_name("white");
+			back = ::fore;
+			al_draw_filled_rectangle(abs_x, yy, abs_x+width, yy+lh, back);
 		}
-		else {
-			back = al_color_name("yellow");
-		}
-		int yy = abs_y + lh*i;
-		al_draw_filled_rectangle(abs_x, yy, abs_x+width, yy+lh, back);
 		al_draw_text(tgui::getFont(), fore, abs_x+2, yy, 0, labels[i].c_str());
 		yy += (lh-1);
-		al_draw_line(abs_x+0.5, yy+0.5, abs_x+width+0.5, yy+0.5, al_color_name("gold"), 1);
+		al_draw_line(abs_x+0.5, yy+0.5, abs_x+width-0.5, yy+0.5, back_darker, 1);
 	}
 }
 
-/*
-std::string text;
-int flags;
-*/
+void tguiWidgetsSetColors(ALLEGRO_COLOR f, ALLEGRO_COLOR b)
+{
+	fore = f;
+	back = b;
+	back_hilite = back;
+	back_darker = back;
+	back_hilite.r *= 1.35f;
+	back_hilite.g *= 1.35f;
+	back_hilite.b *= 1.35f;
+	back_darker.r *= 0.35f;
+	back_darker.g *= 0.35f;
+	back_darker.b *= 0.35f;
+
+	colors_set = true;
+}
+

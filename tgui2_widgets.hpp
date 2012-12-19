@@ -400,4 +400,6 @@ protected:
 	int selected;
 };
 
+void tguiWidgetsSetColors(ALLEGRO_COLOR fore, ALLEGRO_COLOR back);
+
 #endif // _WIDGETS_H
