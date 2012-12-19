@@ -273,8 +273,12 @@ TGUIWidget *getNewWidgetParent(void)
 
 void centerWidget(TGUIWidget* widget, int x, int y)
 {
-	widget->setX(x - (int)(widget->getWidth() / 2));
-	widget->setY(y - (int)(widget->getHeight() / 2));
+	if (x >= 0) {
+		widget->setX(x - (int)(widget->getWidth() / 2));
+	}
+	if (y >= 0) {
+		widget->setY(y - (int)(widget->getHeight() / 2));
+	}
 }
 
 void setScale(float xscale, float yscale)

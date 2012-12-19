@@ -18,11 +18,40 @@ enum TGUI_Direction
 class TGUI_Extended_Widget : public tgui::TGUIWidget
 {
 public:
+	void setTamperingEnabled(bool tampering) {
+		this->tampering = tampering;
+	}
+	bool getTamperingEnabled() {
+		return tampering;
+	}
+	void setX(float x) {
+		if (tampering) {
+			this->x = x;
+		}
+	}
+	void setY(float y) {
+		if (tampering) {
+			this->y = y;
+		}
+	}
+	void setWidth(int width) {
+		if (tampering) {
+			this->width = width;
+		}
+	}
+	void setHeight(int height) {
+		if (tampering) {
+			this->height = height;
+		}
+	}
+
 	TGUI_Extended_Widget(void);
 	virtual ~TGUI_Extended_Widget(void) {}
 
 protected:
 	bool resizable;
+
+	bool tampering;
 };
 
 class TGUI_Icon : public TGUI_Extended_Widget

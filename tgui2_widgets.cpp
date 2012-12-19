@@ -30,6 +30,7 @@ TGUI_Extended_Widget::TGUI_Extended_Widget(void) :
 {
 	x = 0;
 	y = 0;
+	tampering = true;
 }
 
 // --
@@ -674,10 +675,6 @@ void TGUI_Splitter::layout(void)
 
 			TGUI_Splitter *s = dynamic_cast<TGUI_Splitter *>(widget);
 			if (s) {
-				/*
-				widget->setX(xx);
-				widget->setY(yy);
-				*/
 				s->layout();
 			}
 			else {
@@ -1852,8 +1849,8 @@ TGUI_Label::TGUI_Label(std::string text, ALLEGRO_COLOR color, int x, int y, int 
 {
 	this->x = x;
 	this->y = y;
-	this->width = 1;
-	this->height = 1;
+	this->width = al_get_text_width(tgui::getFont(), text.c_str());
+	this->height = al_get_font_line_height(tgui::getFont());
 }
 
 TGUI_Label::~TGUI_Label(void)
