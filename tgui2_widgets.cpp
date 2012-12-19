@@ -644,12 +644,12 @@ void TGUI_Splitter::layout(void)
 
 		if (widget) {
 			if (direction == TGUI_VERTICAL) {
-				widget->setWidth(width);
-				widget->setHeight(sizes[i]);
+				widget->setWidth(width-(hpadding*2));
+				widget->setHeight(sizes[i]-(vpadding*2));
 			}
 			else {
-				widget->setWidth(sizes[i]);
-				widget->setHeight(height);
+				widget->setWidth(sizes[i]-(hpadding*2));
+				widget->setHeight(height-(vpadding*2));
 			}
 
 			TGUI_Splitter *s = dynamic_cast<TGUI_Splitter *>(widget);
@@ -675,6 +675,32 @@ void TGUI_Splitter::layout(void)
 	}
 }
 
+void TGUI_Splitter::setPadding(int hpadding, int vpadding)
+{
+	for (unsigned int i = 0; i < widgets.size(); i++) {
+		TGUIWidget *widget = widgets[i];
+
+		if (widget) {
+			widget->setX(widget->getX()-this->hpadding);
+			widget->setY(widget->getY()-this->vpadding);
+		}
+	}
+
+	this->hpadding = hpadding;
+	this->vpadding = vpadding;
+	
+	for (unsigned int i = 0; i < widgets.size(); i++) {
+		TGUIWidget *widget = widgets[i];
+
+		if (widget) {
+			widget->setX(widget->getX()+this->hpadding);
+			widget->setY(widget->getY()+this->vpadding);
+		}
+	}
+
+	layout();
+}
+
 std::vector<tgui::TGUIWidget *> &TGUI_Splitter::getWidgets(void)
 {
 	return widgets;
@@ -696,7 +722,9 @@ TGUI_Splitter::TGUI_Splitter(
 	weighted_resize(false),
 	widgets(widgets),
 	resizing(-1),
-	drawLines(true)
+	drawLines(true),
+	hpadding(0),
+	vpadding(0)
 {
 	this->x = x;
 	this->y = y;

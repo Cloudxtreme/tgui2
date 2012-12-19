@@ -84,6 +84,7 @@ public:
 	void setDrawLines(bool drawLines);
 	void setWidth(int w);
 	void setHeight(int h);
+	void setPadding(int hpadding, int vpadding);
 
 	TGUI_Splitter(
 		int x, int y,
@@ -118,6 +119,8 @@ protected:
 	int resizing;
 	int last_resize_x, last_resize_y;
 	bool drawLines;
+	int hpadding;
+	int vpadding;
 };
 
 class TGUI_MenuBar;
