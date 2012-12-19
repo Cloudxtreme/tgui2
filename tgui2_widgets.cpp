@@ -1908,8 +1908,6 @@ void TGUI_List::draw(int abs_x, int abs_y)
 			al_draw_filled_rectangle(abs_x, yy, abs_x+width, yy+lh, back);
 		}
 		al_draw_text(tgui::getFont(), fore, abs_x+2, yy, 0, labels[i].c_str());
-		yy += (lh-1);
-		al_draw_line(abs_x+0.5, yy+0.5, abs_x+width-0.5, yy+0.5, back_darker, 1);
 	}
 }
 
