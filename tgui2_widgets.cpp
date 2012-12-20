@@ -252,20 +252,26 @@ void TGUI_Splitter::mouseUp(int rel_x, int rel_y, int abs_x, int abs_y, int mb)
 
 		if (direction == TGUI_VERTICAL) {
 			if (!used &&
-					rel_x >= xx &&
-					rel_x <= xx+width &&
-					rel_y >= yy &&
-					rel_y <= yy+sizes[i] &&
+					rel_x >= xx+hpadding &&
+					rel_x <= xx+width-hpadding &&
+					rel_y >= yy+vpadding &&
+					rel_y <= yy+sizes[i]-vpadding &&
 					widget
 			) {
-				widget->mouseUp(
-					rel_x-xx,
-					rel_y-yy,
-					abs_x,
-					abs_y,
-					mb
-				);
-				used = true;
+				if (((TGUI_Extended_Widget *)widget)->getTamperingEnabled() ||
+					(rel_x >= xx+widget->getX() &&
+					rel_x <= xx+widget->getX()+widget->getWidth() &&
+					rel_y >= yy+widget->getY() &&
+					rel_y <= yy+widget->getY()+widget->getHeight())) {
+					widget->mouseUp(
+						rel_x-xx,
+						rel_y-yy,
+						abs_x,
+						abs_y,
+						mb
+					);
+					used = true;
+				}
 			}
 			else if (widget) {
 				widget->mouseUp(
@@ -278,20 +284,26 @@ void TGUI_Splitter::mouseUp(int rel_x, int rel_y, int abs_x, int abs_y, int mb)
 		}
 		else {
 			if (!used &&
-					rel_x >= xx &&
-					rel_x <= xx+sizes[i] &&
-					rel_y >= yy &&
-					rel_y <= yy+height &&
+					rel_x >= xx+hpadding &&
+					rel_x <= xx+sizes[i]-hpadding &&
+					rel_y >= yy+vpadding &&
+					rel_y <= yy+height-vpadding &&
 					widget
 			) {
-				widget->mouseUp(
-					rel_x-xx,
-					rel_y-yy,
-					abs_x,
-					abs_y,
-					mb
-				);
-				used = true;
+				if (((TGUI_Extended_Widget *)widget)->getTamperingEnabled() ||
+					(rel_x >= xx+widget->getX() &&
+					rel_x <= xx+widget->getX()+widget->getWidth() &&
+					rel_y >= yy+widget->getY() &&
+					rel_y <= yy+widget->getY()+widget->getHeight())) {
+					widget->mouseUp(
+						rel_x-xx,
+						rel_y-yy,
+						abs_x,
+						abs_y,
+						mb
+					);
+					used = true;
+				}
 			}
 			else if (widget) {
 				widget->mouseUp(
@@ -335,21 +347,27 @@ void TGUI_Splitter::mouseDown(int rel_x, int rel_y, int abs_x, int abs_y, int mb
 				used = true;
 			}
 			else if (!used &&
-					rel_x >= xx &&
-					rel_x <= xx+width &&
-					rel_y >= yy &&
-					rel_y <= yy+sizes[i] &&
+					rel_x >= xx+hpadding &&
+					rel_x <= xx+width-hpadding &&
+					rel_y >= yy+vpadding &&
+					rel_y <= yy+sizes[i]-vpadding &&
 					widget
 			) {
-				tgui::setFocus(widget);
-				widget->mouseDown(
-					rel_x-xx,
-					rel_y-yy,
-					abs_x,
-					abs_y,
-					mb
-				);
-				used = true;
+				if (((TGUI_Extended_Widget *)widget)->getTamperingEnabled() ||
+					(rel_x >= xx+widget->getX() &&
+					rel_x <= xx+widget->getX()+widget->getWidth() &&
+					rel_y >= yy+widget->getY() &&
+					rel_y <= yy+widget->getY()+widget->getHeight())) {
+					tgui::setFocus(widget);
+					widget->mouseDown(
+						rel_x-xx,
+						rel_y-yy,
+						abs_x,
+						abs_y,
+						mb
+					);
+					used = true;
+				}
 			}
 			else if (widget) {
 				widget->mouseDown(
@@ -375,21 +393,27 @@ void TGUI_Splitter::mouseDown(int rel_x, int rel_y, int abs_x, int abs_y, int mb
 				used = true;
 			}
 			else if (!used &&
-					rel_x >= xx &&
-					rel_x <= xx+sizes[i] &&
-					rel_y >= yy &&
-					rel_y <= yy+height &&
+					rel_x >= xx+hpadding &&
+					rel_x <= xx+sizes[i]-hpadding &&
+					rel_y >= yy+vpadding &&
+					rel_y <= yy+height-vpadding &&
 					widget
 			) {
-				tgui::setFocus(widget);
-				widget->mouseDown(
-					rel_x-xx,
-					rel_y-yy,
-					abs_x,
-					abs_y,
-					mb
-				);
-				used = true;
+				if (((TGUI_Extended_Widget *)widget)->getTamperingEnabled() ||
+					(rel_x >= xx+widget->getX() &&
+					rel_x <= xx+widget->getX()+widget->getWidth() &&
+					rel_y >= yy+widget->getY() &&
+					rel_y <= yy+widget->getY()+widget->getHeight())) {
+					tgui::setFocus(widget);
+					widget->mouseDown(
+						rel_x-xx,
+						rel_y-yy,
+						abs_x,
+						abs_y,
+						mb
+					);
+					used = true;
+				}
 			}
 			else if (widget) {
 				widget->mouseDown(
@@ -499,10 +523,10 @@ void TGUI_Splitter::mouseMove(int rel_x, int rel_y, int abs_x, int abs_y)
 
 		if (direction == TGUI_VERTICAL) {
 			if (!used &&
-					rel_x >= xx &&
-					rel_x <= xx+width &&
-					rel_y >= yy &&
-					rel_y <= yy+sizes[i] &&
+					rel_x >= xx+hpadding &&
+					rel_x <= xx+width-hpadding &&
+					rel_y >= yy+vpadding &&
+					rel_y <= yy+sizes[i]-vpadding &&
 					widget
 			) {
 				static ALLEGRO_SYSTEM_MOUSE_CURSOR cursor = ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT;
@@ -523,13 +547,19 @@ void TGUI_Splitter::mouseMove(int rel_x, int rel_y, int abs_x, int abs_y)
 					al_set_system_mouse_cursor(tgui::getDisplay(), current_cursor);
 					cursor = current_cursor;
 				}
-				widget->mouseMove(
-					rel_x-xx,
-					rel_y-yy,
-					abs_x,
-					abs_y
-				);
-				used = true;
+				if (((TGUI_Extended_Widget *)widget)->getTamperingEnabled() ||
+					(rel_x >= xx+widget->getX() &&
+					rel_x <= xx+widget->getX()+widget->getWidth() &&
+					rel_y >= yy+widget->getY() &&
+					rel_y <= yy+widget->getY()+widget->getHeight())) {
+					widget->mouseMove(
+						rel_x-xx,
+						rel_y-yy,
+						abs_x,
+						abs_y
+					);
+					used = true;
+				}
 			}
 			else if (widget) {
 				widget->mouseMove(
@@ -541,10 +571,10 @@ void TGUI_Splitter::mouseMove(int rel_x, int rel_y, int abs_x, int abs_y)
 		}
 		else {
 			if (!used &&
-					rel_x >= xx &&
-					rel_x <= xx+sizes[i] &&
-					rel_y >= yy &&
-					rel_y <= yy+height &&
+					rel_x >= xx+hpadding &&
+					rel_x <= xx+sizes[i]-hpadding &&
+					rel_y >= yy+vpadding &&
+					rel_y <= yy+height-vpadding &&
 					widget
 			) {
 				static ALLEGRO_SYSTEM_MOUSE_CURSOR cursor = ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT;
@@ -566,13 +596,19 @@ void TGUI_Splitter::mouseMove(int rel_x, int rel_y, int abs_x, int abs_y)
 					cursor = current_cursor;
 				}
 				al_set_system_mouse_cursor(tgui::getDisplay(), cursor);
-				widget->mouseMove(
-					rel_x-xx,
-					rel_y-yy,
-					abs_x,
-					abs_y
-				);
-				used = true;
+				if (((TGUI_Extended_Widget *)widget)->getTamperingEnabled() ||
+					(rel_x >= xx+widget->getX() &&
+					rel_x <= xx+widget->getX()+widget->getWidth() &&
+					rel_y >= yy+widget->getY() &&
+					rel_y <= yy+widget->getY()+widget->getHeight())) {
+					widget->mouseMove(
+						rel_x-xx,
+						rel_y-yy,
+						abs_x,
+						abs_y
+					);
+					used = true;
+				}
 			}
 			else if (widget) {
 				widget->mouseMove(
@@ -1874,7 +1910,11 @@ void TGUI_List::mouseDown(int rel_x, int rel_y, int abs_x, int abs_y, int mb)
 {
 	if (rel_y >= 0) {
 		int lh = al_get_font_line_height(tgui::getFont());
-		selected = rel_y / lh;
+		int sel = rel_y / lh;
+		if (sel < 0 || sel >= labels.size()) {
+			return;
+		}
+		selected = sel;
 	}
 }
 
