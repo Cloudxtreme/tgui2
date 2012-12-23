@@ -1829,9 +1829,9 @@ void TGUI_Frame::mouseMove(int rel_x, int rel_y, int abs_x, int abs_y)
 		int scr_w, scr_h;
 		tgui::getScreenSize(&scr_w, &scr_h);
 		if (x < 0) x = 0;
-		if (x > scr_w-width-1) x = scr_w-width-1;
+		if (x > scr_w-width) x = scr_w-width;
 		if (y < 0) y = 0;
-		if (y > scr_h-height-1) y = scr_h-height-1;
+		if (y > scr_h-height) y = scr_h-height;
 		drag_x = abs_x;
 		drag_y = abs_y;
 	}
