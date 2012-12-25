@@ -199,7 +199,7 @@ void addWidget(TGUIWidget* widget)
 }
 
 
-TGUIWidget *update(void)
+TGUIWidget *update()
 {
 	long currTime = currentTimeMillis();
 	long elapsed = currTime - lastUpdate;
@@ -217,6 +217,29 @@ TGUIWidget *update(void)
 	}
 
 	return NULL;
+}
+
+std::vector<TGUIWidget *> updateAll(void)
+{
+	std::vector<TGUIWidget *> retVect;
+	long currTime = currentTimeMillis();
+	long elapsed = currTime - lastUpdate;
+
+	if (elapsed > 50) {
+		elapsed = 50;
+	}
+
+	lastUpdate = currTime;
+
+	for (unsigned int i = 0; i < stack[0]->widgets.size(); i++) {
+		TGUIWidget *widget = stack[0]->widgets[i];
+		TGUIWidget *retVal = widget->update();
+		if (retVal) {
+			retVect.push_back(retVal);
+		}
+	}
+
+	return retVect;
 }
 
 void draw()
