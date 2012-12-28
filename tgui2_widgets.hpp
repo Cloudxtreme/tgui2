@@ -430,5 +430,6 @@ protected:
 };
 
 void tguiWidgetsSetColors(ALLEGRO_COLOR fore, ALLEGRO_COLOR back);
+void tguiWidgetsGetColors(ALLEGRO_COLOR *fore, ALLEGRO_COLOR *back);
 
 #endif // _WIDGETS_H

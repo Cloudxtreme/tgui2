@@ -1964,3 +1964,9 @@ void tguiWidgetsSetColors(ALLEGRO_COLOR f, ALLEGRO_COLOR b)
 	colors_set = true;
 }
 
+void tguiWidgetsGetColors(ALLEGRO_COLOR *f, ALLEGRO_COLOR *b)
+{
+	*f = fore;
+	*b = back;
+}
+
