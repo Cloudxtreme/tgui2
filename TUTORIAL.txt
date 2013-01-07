@@ -37,10 +37,11 @@ Substitute for things in <>'s. The -D... part it wholey optional -- you should
 know if you need it.
 
 Ok, so let's break down the fundamental concepts before making a hello world
-program. TGUI is split into some setup functions and a few core functions you'll
-call within your game loop. The setup functions create and add widgets to your
-view. A simple TGUI program with just two buttons you can click on would start
-out like this (rough pseudo-code in part so we focus on the TGUI stuff:)
+program. TGUI is split into setup functions, which are used to create widgets
+and add them to the programs view, and a few core functions you'll call within
+your game loop.  A simple TGUI program with just two buttons you can click on
+would start out like this (this is the setup only, in rough pseudo-code so we
+can focus on only the TGUI stuff for now :)
 
 
 + -- ---- -------- ---------------- -------------------------------------------+
@@ -79,13 +80,14 @@ TGUI functions -- pass it the ALLEGRO_DISPLAY you're going to work with;
 tgui::setFont allows you to set the font TGUI will use for things with text,
 such as the buttons (this is not currently optional if you're using widgets that
 display text); The next two "new TGUI_Button" lines create two different buttons
-with different text and positions but the same size; tgui::setNewWidgetParent is
-not necessary here since the default is 0 (meaning the parent of added widgets
-is the display), but you will get into situations such as adding child widgets
-to a window where it's needed; The calls to tgui::addWidget will add the widgets
-to the scene so they are processed and drawn as we'll see soon; and finally,
-though also not necessary in this simple mouse driven example, tgui::setFocus
-gives the input focus to a widget.
+with different text and positions but the same size. TGUI_Button is, like all
+widgets used with TGUI, a descendant of the tgui::TGUIWidget class;
+tgui::setNewWidgetParent is not necessary here since the default is 0 (meaning
+the parent of added widgets is the display), but you will get into situations
+such as adding child widgets to a window where it's needed; The calls to
+tgui::addWidget will add the widgets to the scene so they are processed and
+drawn as we'll see soon; and finally, though also not necessary in this simple
+mouse driven example, tgui::setFocus gives the input focus to a widget.
 
 Those are the main functions you'll deal with during setup, besides creating
 different types of widgets. There are other functions you can use of course, but
@@ -178,14 +180,13 @@ the app. We modify the tgui::update call and add a few lines like so:
 + -- ---- -------- ---------------- -------------------------------------------+
 
 
-So tgui::update returns a tgui::TGUIWidget. tgui::TGUIWidget happens to be the
-base class that all widgets used with TGUI must inherit from. What widget gets
-returned depends on what events were passed to tgui::handleEvent (for default
-widgets, you can come up with any logic you like for custom widgets.) If no
-widget needs action, tgui::update returns NULL. In our case TGUI_Buttons return
-a pointer to themselves when clicked, so if button1 is clicked, button1 is
-returned from tgui::update. We check for each button being pressed and react
-appropriately.
+So tgui::update returns a tgui::TGUIWidget *. What widget gets returned depends
+on what events were passed to tgui::handleEvent (for default widgets, you can
+come up with any logic you like for custom widgets -- for example, return the
+widget's pointer based on a timer.) If no widget needs action, tgui::update
+returns NULL. In our case TGUI_Buttons return a pointer to themselves when
+clicked, so if button1 is clicked, button1 is returned from tgui::update. We
+check for each button being pressed and react appropriately.
 
 That is all there is to it. Below I'll put a complete code listing for a working
 demo using the bits from above. Happy coding!
@@ -275,4 +276,17 @@ int main(int argc, char **argv)
 }
 + -- ---- -------- ---------------- -------------------------------------------+
 
+
+Bonus track: Here's a far-too-brief description of how you create custom
+widgets: you'll need to look at example.cpp/example.hpp or
+tgui2_widgets.cpp/tgui2_widgets.hpp and understand that code for this to make
+sense. Basically you need to respond to certain "events" (method calls).  Those
+are listed in tgui2.hpp as virtual functions. The main ones are draw, update,
+mouseDown, mouseUp, mouseMove, keyDown, keyUp and maybe a few others (there are
+some more advanced ones like chain*, that you'll need to read the core code
+and/or tgui2_widgets.cpp to figure out until I write about that.)  There are
+some widgets defined in the library already, though only a small number. You can
+look in tgui2_widgets.cpp/hpp to see more details on how to create a widget.  I
+recommend looking at TGUI_Frame first as that's really simple. It's just a
+rectangular "window" that you can drag around by the title bar.
 
