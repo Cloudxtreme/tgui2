@@ -44,7 +44,8 @@ out like this (rough pseudo-code in part so we focus on the TGUI stuff:)
 - -- --- ---- ----- ------ ------- -------- --------- ---------- ---------------
 #includes...
 #include <tgui2.hpp>
-#include <tgui2_widgets.hpp> // if you're only using custom widgets, don't include this
+/* If you're only using custom widgets, don't include this: */
+#include <tgui2_widgets.hpp>
 
 int main(int argc, char **argv)
 {
@@ -57,7 +58,8 @@ int main(int argc, char **argv)
     ALLEGRO_FONT *font = al_load_font("DejaVuSans.ttf", 18, 0);
     tgui::setFont(font);
 
-    TGUI_Button *button1 = new TGUI_Button("Change Color", 10, 10, 150, 30); // text, x, y, width, height
+    /* Parameters are: Label, x, y, width, height */
+    TGUI_Button *button1 = new TGUI_Button("Change Color", 10, 10, 150, 30);
     TGUI_Button *button2 = new TGUI_Button("Quit", 170, 10, 150, 30);
 
     tgui::setNewWidgetParent(0);
@@ -102,7 +104,8 @@ First look at a typical Allegro 5 game loop:
         do {
             ALLEGRO_EVENT event;
             al_wait_for_event(queue, &event);
-            if (event.type == ALLEGRO_EVENT_TIMER && event.timer.source == drawTimer) {
+            if (event.type == ALLEGRO_EVENT_TIMER &&
+                    event.timer.source == drawTimer) {
                 draw = true;
             }
         } while (!al_event_queue_is_empty(queue));
@@ -163,7 +166,8 @@ the app. We modify the tgui::update call and add a few lines like so:
 - -- --- ---- ----- ------ ------- -------- --------- ---------- ---------------
                     tgui::TGUIWidget *ret = tgui::update(); 
                     if (ret == button1) {
-                        bgColor = al_map_rgb(rand()%255, rand()%255, rand()%255);
+                        bgColor =
+                            al_map_rgb(rand()%255, rand()%255, rand()%255);
                     }
                     else if (ret == button2) {
                         quit = true;
@@ -189,7 +193,8 @@ demo using the bits from above. Happy coding!
 #include <allegro5/allegro.h>
 
 #include <tgui2.hpp>
-#include <tgui2_widgets.hpp> // if you're only using custom widgets, don't include this
+/* If you're only using custom widgets, don't include this: */
+#include <tgui2_widgets.hpp>
 
 int main(int argc, char **argv)
 {
@@ -218,7 +223,8 @@ int main(int argc, char **argv)
     ALLEGRO_FONT *font = al_load_font("DejaVuSans.ttf", 18, 0);
     tgui::setFont(font);
 
-    TGUI_Button *button1 = new TGUI_Button("Change Color", 10, 10, 150, 30); // text, x, y, width, height
+    /* Parameters are: Label, x, y, width, height */
+    TGUI_Button *button1 = new TGUI_Button("Change Color", 10, 10, 150, 30);
     TGUI_Button *button2 = new TGUI_Button("Quit", 170, 10, 150, 30);
 
     tgui::setNewWidgetParent(0);
@@ -245,7 +251,8 @@ int main(int argc, char **argv)
                 else if (event.timer.source == logicTimer) {
                     tgui::TGUIWidget *ret = tgui::update(); 
                     if (ret == button1) {
-                        bgColor = al_map_rgb(rand()%255, rand()%255, rand()%255);
+                        bgColor =
+                            al_map_rgb(rand()%255, rand()%255, rand()%255);
                     }
                     else if (ret == button2) {
                         quit = true;
