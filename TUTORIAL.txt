@@ -5,7 +5,7 @@ up-to-date while the blog post will likely stay unchanged. On with the show!
 
 
 + -- ---- -------- ---------------- -------------------------------------------+
-Code and command line listings are displayed betweens these funky lines.
+Code and command line listings are displayed between these funky lines.
 + -- ---- -------- ---------------- -------------------------------------------+
 
 
