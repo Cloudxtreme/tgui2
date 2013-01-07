@@ -1,9 +1,11 @@
 This tutorial started as a blog post
-(http://www.nooskewl.com/content/quick-and-dirty-tgui-2-tutorial),
-however it's handier if it's shipped along with the library itself. I'll keep
-this version up-to-date while the blog post will likely stay unchanged.
+(http://www.nooskewl.com/content/quick-and-dirty-tgui-2-tutorial), however it's
+handier if it's shipped along with the library itself. I'll keep this version
+up-to-date while the blog post will likely stay unchanged.
 
------------------------------------ begin --------------------------------------
+
+
+
 
 TGUI has been around since I returned to making games in around 2002. It has
 changed a lot at times and I still consider it an evolving API. I've never
@@ -17,7 +19,8 @@ git://nooskewl.com/tgui2.git
 
 I presume you know how to build software from source, but the skinny is:
 
---------------------------------------------------------------------------------
+
+- -- --- ---- ----- ------ ------- -------- --------- ---------- ---------------
 cd tgui2
 mkdir build
 cd build
@@ -25,7 +28,8 @@ cmake .. -DUSER_INCLUDE_PATH=<any extra include directories you need to specify>
 make
 cp libtgui2.a <your library path>
 cp ../tgui2*.hpp <your include path>
---------------------------------------------------------------------------------
+- -- --- ---- ----- ------ ------- -------- --------- ---------- ---------------
+
 
 Substitute for things in <>'s. The -D... part it wholey optional -- you should
 know if you need it.
@@ -36,7 +40,8 @@ call within your game loop. The setup functions create and add widgets to your
 view. A simple TGUI program with just two buttons you can click on would start
 out like this (rough pseudo-code in part so we focus on the TGUI stuff:)
 
---------------------------------------------------------------------------------
+
+- -- --- ---- ----- ------ ------- -------- --------- ---------- ---------------
 #includes...
 #include <tgui2.hpp>
 #include <tgui2_widgets.hpp> // if you're only using custom widgets, don't include this
@@ -62,7 +67,8 @@ int main(int argc, char **argv)
 
     // game loop
 }
---------------------------------------------------------------------------------
+- -- --- ---- ----- ------ ------- -------- --------- ---------- ---------------
+
 
 A quick breakdown of each call is: tgui::init is always called before any other
 TGUI functions -- pass it the ALLEGRO_DISPLAY you're going to work with;
@@ -86,7 +92,8 @@ loop integration.
 
 First look at a typical Allegro 5 game loop:
 
---------------------------------------------------------------------------------
+
+- -- --- ---- ----- ------ ------- -------- --------- ---------- ---------------
     bool quit = false;
 
     while (!quit) {
@@ -105,11 +112,13 @@ First look at a typical Allegro 5 game loop:
             al_flip_display();
         }
     }
---------------------------------------------------------------------------------
+- -- --- ---- ----- ------ ------- -------- --------- ---------- ---------------
+
 
 TGUI integrates very easily with loops similar to this:
 
---------------------------------------------------------------------------------
+
+- -- --- ---- ----- ------ ------- -------- --------- ---------- ---------------
     bool quit = false;
 
     while (!quit) {
@@ -135,7 +144,8 @@ TGUI integrates very easily with loops similar to this:
             al_flip_display();
         }
     }
---------------------------------------------------------------------------------
+- -- --- ---- ----- ------ ------- -------- --------- ---------- ---------------
+
 
 You'll see three main changes here, marked with *#* comments. tgui::handleEvent
 does all of the magic input handling, passing input events along to widgets to
@@ -149,7 +159,8 @@ So now onto responding to GUI events at the game level. We want button1 to
 change the clear color of the screen to something random, and button2 to quit
 the app. We modify the tgui::update call and add a few lines like so:
 
---------------------------------------------------------------------------------
+
+- -- --- ---- ----- ------ ------- -------- --------- ---------- ---------------
                     tgui::TGUIWidget *ret = tgui::update(); 
                     if (ret == button1) {
                         bgColor = al_map_rgb(rand()%255, rand()%255, rand()%255);
@@ -158,7 +169,8 @@ the app. We modify the tgui::update call and add a few lines like so:
                         quit = true;
                         break;
                     }
---------------------------------------------------------------------------------
+- -- --- ---- ----- ------ ------- -------- --------- ---------- ---------------
+
 
 So tgui::update returns a tgui::TGUIWidget. tgui::TGUIWidget happens to be the
 base class that all widgets used with TGUI must inherit from. What widget gets
@@ -172,7 +184,8 @@ appropriately.
 That is all there is to it. Below I'll put a complete code listing for a working
 demo using the bits from above. Happy coding!
 
---------------------------------------------------------------------------------
+
+- -- --- ---- ----- ------ ------- -------- --------- ---------- ---------------
 #include <allegro5/allegro.h>
 
 #include <tgui2.hpp>
@@ -251,5 +264,6 @@ int main(int argc, char **argv)
 
     return 0;
 }
---------------------------------------------------------------------------------
+- -- --- ---- ----- ------ ------- -------- --------- ---------- ---------------
+
 
