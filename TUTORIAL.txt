@@ -280,13 +280,13 @@ int main(int argc, char **argv)
 Bonus track: Here's a far-too-brief description of how you create custom
 widgets: you'll need to look at example.cpp/example.hpp or
 tgui2_widgets.cpp/tgui2_widgets.hpp and understand that code for this to make
-sense. Basically you need to respond to certain "events" (method calls).  Those
+sense. Basically you need to respond to certain "events" (method calls.) Those
 are listed in tgui2.hpp as virtual functions. The main ones are draw, update,
 mouseDown, mouseUp, mouseMove, keyDown, keyUp and maybe a few others (there are
 some more advanced ones like chain*, that you'll need to read the core code
 and/or tgui2_widgets.cpp to figure out until I write about that.)  There are
-some widgets defined in the library already, though only a small number. You can
-look in tgui2_widgets.cpp/hpp to see more details on how to create a widget.  I
-recommend looking at TGUI_Frame first as that's really simple. It's just a
-rectangular "window" that you can drag around by the title bar.
+some widgets defined in the library already, though only a small number. You
+can look in tgui2_widgets.cpp/hpp to see more details on how to create a
+widget.  I recommend looking at TGUI_Frame first as that's really simple. It's
+just a rectangular "window" that you can drag around by the title bar.
 
