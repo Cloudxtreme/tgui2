@@ -181,12 +181,12 @@ the app. We modify the tgui::update call and add a few lines like so:
 
 
 So tgui::update returns a tgui::TGUIWidget *. What widget gets returned depends
-on what events were passed to tgui::handleEvent (for default widgets, you can
-come up with any logic you like for custom widgets -- for example, return the
-widget's pointer based on a timer.) If no widget needs action, tgui::update
-returns NULL. In our case TGUI_Buttons return a pointer to themselves when
-clicked, so if button1 is clicked, button1 is returned from tgui::update. We
-check for each button being pressed and react appropriately.
+on what events were passed to tgui::handleEvent (for custom widgets, you can
+come up with any logic you like -- for example, return the widget's pointer
+based on a timer.) If no widget needs action, tgui::update returns NULL. In our
+case TGUI_Buttons return a pointer to themselves when clicked, so if button1 is
+clicked, button1 is returned from tgui::update. We check for each button being
+pressed and react appropriately.
 
 That is all there is to it. Below I'll put a complete code listing for a working
 demo using the bits from above. Happy coding!
