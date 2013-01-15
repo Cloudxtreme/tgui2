@@ -4,9 +4,9 @@ handier if it's shipped along with the library itself. I'll keep this version
 up-to-date while the blog post will likely stay unchanged. On with the show!
 
 
-+ -- ---- -------- ---------------- -------------------------------------------+
++-------------------------------- - - - - - -----------------------------------+
 Code and command line listings are displayed between these funky lines.
-+ -- ---- -------- ---------------- -------------------------------------------+
++-------------------------------- - - - - - -----------------------------------+
 
 
 TGUI has been around since I returned to making games in around 2002. It has
@@ -22,7 +22,7 @@ git://nooskewl.com/tgui2.git
 I presume you know how to build software from source, but the skinny is:
 
 
-+ -- ---- -------- ---------------- -------------------------------------------+
++-------------------------------- - - - - - -----------------------------------+
 cd tgui2
 mkdir build
 cd build
@@ -30,7 +30,7 @@ cmake .. -DUSER_INCLUDE_PATH=<any extra include directories you need to specify>
 make
 cp libtgui2.a <your library path>
 cp ../tgui2*.hpp <your include path>
-+ -- ---- -------- ---------------- -------------------------------------------+
++-------------------------------- - - - - - -----------------------------------+
 
 
 Substitute for things in <>'s. The -D... part it wholey optional -- you should
@@ -44,7 +44,7 @@ would start out like this (this is the setup only, in rough pseudo-code so we
 can focus on only the TGUI stuff for now :)
 
 
-+ -- ---- -------- ---------------- -------------------------------------------+
++-------------------------------- - - - - - -----------------------------------+
 #includes...
 #include <tgui2.hpp>
 /* If you're only using custom widgets, don't include this: */
@@ -72,7 +72,7 @@ int main(int argc, char **argv)
 
     // game loop
 }
-+ -- ---- -------- ---------------- -------------------------------------------+
++-------------------------------- - - - - - -----------------------------------+
 
 
 A quick breakdown of each call is: tgui::init is always called before any other
@@ -99,7 +99,7 @@ loop integration.
 First look at a typical Allegro 5 game loop:
 
 
-+ -- ---- -------- ---------------- -------------------------------------------+
++-------------------------------- - - - - - -----------------------------------+
     bool quit = false;
 
     while (!quit) {
@@ -119,13 +119,13 @@ First look at a typical Allegro 5 game loop:
             al_flip_display();
         }
     }
-+ -- ---- -------- ---------------- -------------------------------------------+
++-------------------------------- - - - - - -----------------------------------+
 
 
 TGUI integrates very easily with loops similar to this:
 
 
-+ -- ---- -------- ---------------- -------------------------------------------+
++-------------------------------- - - - - - -----------------------------------+
     bool quit = false;
 
     while (!quit) {
@@ -151,7 +151,7 @@ TGUI integrates very easily with loops similar to this:
             al_flip_display();
         }
     }
-+ -- ---- -------- ---------------- -------------------------------------------+
++-------------------------------- - - - - - -----------------------------------+
 
 
 You'll see three main changes here, marked with *#* comments. tgui::handleEvent
@@ -167,7 +167,7 @@ change the clear color of the screen to something random, and button2 to quit
 the app. We modify the tgui::update call and add a few lines like so:
 
 
-+ -- ---- -------- ---------------- -------------------------------------------+
++-------------------------------- - - - - - -----------------------------------+
                     tgui::TGUIWidget *ret = tgui::update(); 
                     if (ret == button1) {
                         bgColor =
@@ -177,7 +177,7 @@ the app. We modify the tgui::update call and add a few lines like so:
                         quit = true;
                         break;
                     }
-+ -- ---- -------- ---------------- -------------------------------------------+
++-------------------------------- - - - - - -----------------------------------+
 
 
 So tgui::update returns a tgui::TGUIWidget *. What widget gets returned depends
@@ -192,7 +192,7 @@ That is all there is to it. Below I'll put a complete code listing for a working
 demo using the bits from above. Happy coding!
 
 
-+ -- ---- -------- ---------------- -------------------------------------------+
++-------------------------------- - - - - - -----------------------------------+
 #include <allegro5/allegro.h>
 
 #include <tgui2.hpp>
@@ -274,7 +274,7 @@ int main(int argc, char **argv)
 
     return 0;
 }
-+ -- ---- -------- ---------------- -------------------------------------------+
++-------------------------------- - - - - - -----------------------------------+
 
 
 Bonus track: Here's a far-too-brief description of how you create custom
