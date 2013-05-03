@@ -1748,7 +1748,7 @@ void TGUI_TextField::keyChar(int keycode, int unichar)
 			findOffset();
 		}
 	}
-	else {
+	else if (keycode != ALLEGRO_KEY_ENTER) {
 		if (cursorPos >= (int)str.length())
 			str.push_back(unichar);
 		else
