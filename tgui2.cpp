@@ -907,6 +907,14 @@ void TGUIWidget::remove(void) {
 	if (it != stack[0]->widgets.end()) {
 		stack[0]->widgets.erase(it);
 	}
+	it = std::find(preDrawWidgets.begin(), preDrawWidgets.end(), this);
+	if (it != preDrawWidgets.end()) {
+		preDrawWidgets.erase(it);
+	}
+	it = std::find(postDrawWidgets.begin(), postDrawWidgets.end(), this);
+	if (it != postDrawWidgets.end()) {
+		postDrawWidgets.erase(it);
+	}
 	
 	if (child) {
 		child->remove();
@@ -985,7 +993,12 @@ void doModal(ALLEGRO_EVENT_QUEUE *queue, bool (*callback)(TGUIWidget *widget))
 			redraw = 0;
 
 			al_clear_to_color(al_map_rgb_f(0.0f, 0.0f, 0.0f));
+			ALLEGRO_TRANSFORM t, backup;
+			al_copy_transform(&backup, al_get_current_transform());
+			al_identity_transform(&t);
+			al_use_transform(&t);
 			al_draw_tinted_bitmap(back, al_map_rgba_f(0.5f, 0.5f, 0.5f, 0.5f), 0, 0, 0);
+			al_use_transform(&backup);
 		
 			int abs_x, abs_y;
 			for (unsigned int i = 0; i < preDrawWidgets.size(); i++) {

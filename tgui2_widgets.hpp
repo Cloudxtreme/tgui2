@@ -398,6 +398,8 @@ class TGUI_Label : public TGUI_Extended_Widget
 public:
 	void draw(int abs_x, int abs_y);
 
+	void setText(std::string text);
+
 	TGUI_Label(std::string text, ALLEGRO_COLOR color, int x, int y, int flags);
 	virtual ~TGUI_Label(void);
 

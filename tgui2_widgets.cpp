@@ -1533,7 +1533,7 @@ void TGUI_Slider::draw(int abs_x, int abs_y)
 
 	al_draw_filled_rectangle(x, y, x+width, y+height, back);
 	al_draw_rectangle(x+0.5, y+0.5, x-0.5+width, y-0.5+height, fore, 1);
-	al_draw_line(abs_x+lx+0.5, abs_y+ly+0.5, abs_x+lx-0.5+lw, abs_y+ly-0.5+lh, fore, 1);
+	al_draw_line(abs_x+lx+0.5, abs_y+ly+0.5, abs_x+lx+0.5+lw, abs_y+ly+0.5+lh, fore, 1);
 	al_draw_filled_rectangle(x1, y1, x1+w, y1+h, fore);
 }
 
@@ -1606,6 +1606,8 @@ TGUI_Slider::TGUI_Slider(int x, int y, int size, TGUI_Direction direction) :
 	width += TAB_SIZE*2;
 	height = direction == TGUI_VERTICAL ? size : 16;
 	height += TAB_SIZE*2;
+
+	dragging = false;
 }
 
 // --
@@ -1870,6 +1872,11 @@ TGUI_Frame::~TGUI_Frame(void)
 }
 
 // --
+
+void TGUI_Label::setText(std::string text)
+{
+	this->text = text;
+}
 
 void TGUI_Label::draw(int abs_x, int abs_y)
 {
