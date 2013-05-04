@@ -1702,8 +1702,8 @@ void TGUI_TextField::draw(int abs_x, int abs_y)
 		al_draw_filled_rectangle(xx, abs_y+1, xx2, abs_y+height-2,
 			al_map_rgb(0, 255, 255));
 	}
-	tgui::setClip(abs_x+1, abs_y, width-2, height);
-	al_draw_text(tgui::getFont(), al_color_name("black"), abs_x+1, abs_y+PADDING, 0, str.substr(offset).c_str());
+	tgui::setClip(abs_x+3, abs_y, width-4, height);
+	al_draw_text(tgui::getFont(), al_color_name("black"), abs_x+3, abs_y+PADDING, 0, str.substr(offset).c_str());
 	tgui::clearClip();
 }
 
