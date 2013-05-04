@@ -368,6 +368,7 @@ protected:
 	int cursorPos;
 	int offset;
 	bool (*validate)(const std::string str);
+	bool validates;
 };
 
 // only need modal frame right now so this one won't be draggable (yet)

@@ -1674,16 +1674,12 @@ void TGUI_TextField::draw(int abs_x, int abs_y)
 
 	ALLEGRO_COLOR bgcolor;
 
-	if (validate) {
-		if (validate(str)) {
-			bgcolor = al_color_name("white");
-		}
-		else {
-			bgcolor = al_color_name("pink");
-		}
-	}
-	else
+	if (validates) {
 		bgcolor = al_color_name("white");
+	}
+	else {
+		bgcolor = al_color_name("pink");
+	}
 
 	al_draw_filled_rectangle(abs_x, abs_y, abs_x+width, abs_y+height, bgcolor);
 	al_draw_rectangle(abs_x+0.5, abs_y+0.5, abs_x+width-0.5, abs_y+height-0.5, al_color_name("black"), 1);
@@ -1748,13 +1744,17 @@ void TGUI_TextField::keyChar(int keycode, int unichar)
 			findOffset();
 		}
 	}
-	else if (keycode != ALLEGRO_KEY_ENTER) {
+	else if (keycode != ALLEGRO_KEY_ENTER && keycode != ALLEGRO_KEY_ESCAPE) {
 		if (cursorPos >= (int)str.length())
 			str.push_back(unichar);
 		else
 			str.insert(str.begin() + cursorPos, unichar);
 		cursorPos++;
 		findOffset();
+	}
+	
+	if (validate) {
+		validates = validate(str);
 	}
 }
 
@@ -1785,7 +1785,8 @@ TGUI_TextField::TGUI_TextField(std::string startStr, int x, int y, int width) :
 	str(startStr),
 	cursorPos(startStr.length()),
 	offset(0),
-	validate(NULL)
+	validate(NULL),
+	validates(true)
 {
 	this->x = x;
 	this->y = y;
