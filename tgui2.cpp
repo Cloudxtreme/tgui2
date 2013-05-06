@@ -790,7 +790,10 @@ bool isClipSet(void)
 
 void setClip(int x, int y, int width, int height)
 {
-	al_set_clipping_rectangle(x, y, width, height);
+	float _x = x;
+	float _y = y;
+	al_transform_coordinates(al_get_current_transform(), &_x, &_y);
+	al_set_clipping_rectangle(_x, _y, width, height);
 	clipSet = true;
 }
 
