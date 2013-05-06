@@ -212,7 +212,7 @@ void setScreenSize(int w, int h);
 ALLEGRO_DISPLAY *getDisplay(void);
 // Callback should return true to cancel dialog, it will get each widget
 // returned from tgui::update
-void doModal(ALLEGRO_EVENT_QUEUE *queue, bool (*callback)(TGUIWidget *widget));
+void doModal(ALLEGRO_EVENT_QUEUE *queue, bool (*callback)(TGUIWidget *widget), void (*resize_callback)());
 
 } // End namespace tgui
 

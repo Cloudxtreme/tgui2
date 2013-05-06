@@ -962,7 +962,7 @@ ALLEGRO_DISPLAY *getDisplay(void)
 	return display;
 }
 
-void doModal(ALLEGRO_EVENT_QUEUE *queue, bool (*callback)(TGUIWidget *widget))
+void doModal(ALLEGRO_EVENT_QUEUE *queue, bool (*callback)(TGUIWidget *widget), void (*resize_callback)())
 {
 	int dw = al_get_display_width(al_get_current_display());
 	int dh = al_get_display_height(al_get_current_display());
@@ -989,6 +989,11 @@ void doModal(ALLEGRO_EVENT_QUEUE *queue, bool (*callback)(TGUIWidget *widget))
 
 			if (event.type == ALLEGRO_EVENT_TIMER) {
 				redraw++;
+			}
+
+			if (resize_callback && event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
+				al_acknowledge_resize(display);
+				resize_callback();
 			}
 
 			handleEvent(&event);
