@@ -340,6 +340,14 @@ void convertMousePosition(int *x, int *y)
 
 	*x = *x / x_scale;
 	*y = *y / y_scale;
+
+	float fx = 0;
+	float fy = 0;
+
+	al_transform_coordinates(al_get_current_transform(), &fx, &fy);
+
+	*x += fx;
+	*y += fy;
 }
 
 void bufferToScreenPos(int *x, int *y, int bw, int bh)
