@@ -338,16 +338,15 @@ void convertMousePosition(int *x, int *y)
 			break;
 	}
 
+	const ALLEGRO_TRANSFORM *t = al_get_current_transform();
+	float tx = t->m[3][0];
+	float ty = t->m[3][1];
+
+	*x -= tx;
+	*y -= ty;
+
 	*x = *x / x_scale;
 	*y = *y / y_scale;
-
-	float fx = 0;
-	float fy = 0;
-
-	al_transform_coordinates(al_get_current_transform(), &fx, &fy);
-
-	*x -= fx;
-	*y -= fy;
 }
 
 void bufferToScreenPos(int *x, int *y, int bw, int bh)
