@@ -182,9 +182,11 @@ void TGUI_Splitter::draw(int abs_x, int abs_y)
 	float r, g, b, a;
 	al_unmap_rgba_f(clear_color, &r, &g, &b, &a);
 	if (a != 0) {
+		int _x, _y, _w, _h;
+		tgui::getClip(&_x, &_y, &_w, &_h);
 		tgui::setClip(xx, yy, width, height);
 		al_clear_to_color(clear_color);
-		tgui::clearClip();
+		tgui::setClip(_x, _y, _w, _h);
 	}
 
 	if (drawLines) {
@@ -208,6 +210,8 @@ void TGUI_Splitter::draw(int abs_x, int abs_y)
 			yinc = 0;
 		}
 
+		int _x, _y, _w, _h;
+		tgui::getClip(&_x, &_y, &_w, &_h);
 		tgui::setClip(xx, yy, w, h);
 
 		if (widget) {
@@ -223,7 +227,7 @@ void TGUI_Splitter::draw(int abs_x, int abs_y)
 			}
 		}
 
-		tgui::clearClip();
+		tgui::setClip(_x, _y, _w, _h);
 
 		xx += xinc;
 		yy += yinc;
@@ -1310,11 +1314,13 @@ void TGUI_ScrollPane::draw(int abs_x, int abs_y)
 	if (offsx < 0) offsx = 0;
 	if (offsy < 0) offsy = 0;
 
+	int _x, _y, _w, _h;
+	tgui::getClip(&_x, &_y, &_w, &_h);
 	tgui::setClip(abs_x, abs_y, width, height);
 
 	child->draw(abs_x-offsx, abs_y-offsy);
 
-	tgui::clearClip();
+	tgui::setClip(_x, _y, _w, _h);
 
 	int x1, y1, x2, y2;
 	get_vtab_details(&x1, &y1, &x2, &y2);
@@ -1698,9 +1704,11 @@ void TGUI_TextField::draw(int abs_x, int abs_y)
 		al_draw_filled_rectangle(xx, abs_y+1, xx2, abs_y+height-2,
 			al_map_rgb(0, 255, 255));
 	}
+	int _x, _y, _w, _h;
+	tgui::getClip(&_x, &_y, &_w, &_h);
 	tgui::setClip(abs_x+3, abs_y, width-4, height);
 	al_draw_text(tgui::getFont(), al_color_name("black"), abs_x+3, abs_y+PADDING, 0, str.substr(offset).c_str());
-	tgui::clearClip();
+	tgui::setClip(_x, _y, _w, _h);
 }
 
 void TGUI_TextField::findOffset(void)
