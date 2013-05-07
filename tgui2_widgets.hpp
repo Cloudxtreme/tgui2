@@ -323,6 +323,7 @@ public:
 
 	float getPosition(void);
 	void setPosition(float pos);
+	void setCallback(void (*callback)(float pos));
 
 	TGUI_Slider(int x, int y, int size, TGUI_Direction direction);
 
@@ -331,6 +332,7 @@ protected:
 	TGUI_Direction direction;
 	float pos;
 	bool dragging;
+	void (*callback)(float);
 };
 
 class TGUI_Button : public TGUI_Icon
@@ -400,6 +402,7 @@ public:
 	void draw(int abs_x, int abs_y);
 
 	void setText(std::string text);
+	void setFont(ALLEGRO_FONT *font);
 
 	TGUI_Label(std::string text, ALLEGRO_COLOR color, int x, int y, int flags);
 	virtual ~TGUI_Label(void);
@@ -409,6 +412,7 @@ protected:
 	std::string text;
 	ALLEGRO_COLOR color;
 	int flags;
+	ALLEGRO_FONT *font;
 };
 
 class TGUI_List : public TGUI_Extended_Widget

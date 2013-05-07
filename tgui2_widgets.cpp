@@ -1517,13 +1517,13 @@ void TGUI_Slider::draw(int abs_x, int abs_y)
 	int lx, ly, lw, lh;
 
 	if (direction == TGUI_HORIZONTAL) {
-		x1 = x + (pos * size) + TAB_SIZE/2;
+		x1 = x + (pos * (size - TAB_SIZE));
 		y1 = y+TAB_SIZE/2;
 		w = TAB_SIZE;
 		h = height-TAB_SIZE;
-		lx = TAB_SIZE*3/2;
-		ly = h / 2;
-		lw = size-TAB_SIZE;
+		lx = 0;
+		ly = TAB_SIZE*3/2 + 1;
+		lw = size;
 		lh = 0;
 	}
 	else {
@@ -1538,9 +1538,9 @@ void TGUI_Slider::draw(int abs_x, int abs_y)
 	}
 
 	al_draw_filled_rectangle(x, y, x+width, y+height, back);
-	al_draw_rectangle(x+0.5, y+0.5, x-0.5+width, y-0.5+height, fore, 1);
+	//al_draw_rectangle(x+0.5, y+0.5, x-0.5+width, y-0.5+height, fore, 1);
 	al_draw_line(abs_x+lx+0.5, abs_y+ly+0.5, abs_x+lx+0.5+lw, abs_y+ly+0.5+lh, fore, 1);
-	al_draw_filled_rectangle(x1, y1, x1+w, y1+h, fore);
+	al_draw_filled_rounded_rectangle(x1, y1, x1+w, y1+h, 3, 3, fore);
 }
 
 void TGUI_Slider::mouseDown(int rel_x, int rel_y, int abs_x, int abs_y, int mb)
@@ -1589,6 +1589,10 @@ void TGUI_Slider::mouseMoveAll(tgui::TGUIWidget *leftOut, int abs_x, int abs_y)
 void TGUI_Slider::mouseUp(int rel_x, int rel_y, int abs_x, int abs_y, int mb)
 {
 	dragging = false;
+
+	if (callback) {
+		callback(pos);
+	}
 }
 
 float TGUI_Slider::getPosition(void)
@@ -1599,6 +1603,11 @@ float TGUI_Slider::getPosition(void)
 void TGUI_Slider::setPosition(float pos)
 {
 	this->pos = pos;
+}
+
+void TGUI_Slider::setCallback(void (*callback)(float))
+{
+	this->callback = callback;
 }
 
 TGUI_Slider::TGUI_Slider(int x, int y, int size, TGUI_Direction direction) :
@@ -1614,6 +1623,8 @@ TGUI_Slider::TGUI_Slider(int x, int y, int size, TGUI_Direction direction) :
 	height += TAB_SIZE*2;
 
 	dragging = false;
+
+	callback = NULL;
 }
 
 // --
@@ -1887,11 +1898,16 @@ void TGUI_Label::setText(std::string text)
 	this->text = text;
 }
 
+void TGUI_Label::setFont(ALLEGRO_FONT *font)
+{
+	this->font = font;
+}
+
 void TGUI_Label::draw(int abs_x, int abs_y)
 {
 	setDefaultColors();
 
-	al_draw_text(tgui::getFont(), color, abs_x, abs_y, flags, text.c_str());
+	al_draw_text(font, color, abs_x, abs_y, flags, text.c_str());
 }
 
 TGUI_Label::TGUI_Label(std::string text, ALLEGRO_COLOR color, int x, int y, int flags) :
@@ -1903,6 +1919,7 @@ TGUI_Label::TGUI_Label(std::string text, ALLEGRO_COLOR color, int x, int y, int 
 	this->y = y;
 	this->width = al_get_text_width(tgui::getFont(), text.c_str());
 	this->height = al_get_font_line_height(tgui::getFont());
+	this->font = tgui::getFont();
 }
 
 TGUI_Label::~TGUI_Label(void)
