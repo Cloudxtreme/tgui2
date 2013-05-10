@@ -1,6 +1,7 @@
 #include "tgui2.hpp"
 
 #include <cstdio>
+#include <cmath>
 
 namespace tgui {
 
@@ -797,10 +798,17 @@ bool isClipSet(void)
 
 void setClip(int x, int y, int width, int height)
 {
-	float _x = x;
-	float _y = y;
-	al_transform_coordinates(al_get_current_transform(), &_x, &_y);
-	al_set_clipping_rectangle(_x, _y, width, height);
+	const ALLEGRO_TRANSFORM *t = al_get_current_transform();
+	float tx = t->m[3][0];
+	float ty = t->m[3][1];
+
+	x = x * x_scale;
+	y = y * y_scale;
+
+	x += tx;
+	y += ty;
+
+	al_set_clipping_rectangle(x, y, ceil(width*x_scale), ceil(height*y_scale));
 	clipSet = true;
 }
 

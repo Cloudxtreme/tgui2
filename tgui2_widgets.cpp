@@ -1517,28 +1517,19 @@ void TGUI_Slider::draw(int abs_x, int abs_y)
 	int lx, ly, lw, lh;
 
 	if (direction == TGUI_HORIZONTAL) {
-		x1 = x + (pos * (size - TAB_SIZE));
-		y1 = y+TAB_SIZE/2;
+		x1 = abs_x + pos*(size-TAB_SIZE);
+		y1 = abs_y;
 		w = TAB_SIZE;
-		h = height-TAB_SIZE;
-		lx = 0;
-		ly = TAB_SIZE*3/2 + 1;
-		lw = size;
+		h = height;
+		lx = TAB_SIZE/2;
+		ly = height/2;
+		lw = size-TAB_SIZE;
 		lh = 0;
 	}
 	else {
-		x1 = x+TAB_SIZE/2;
-		y1 = y + (pos * size) + TAB_SIZE/2;
-		w = width-TAB_SIZE;
-		h = TAB_SIZE;
-		lx = w / 2;
-		ly = TAB_SIZE*3/2;
-		lw = 0;
-		lh = size-TAB_SIZE;
+		// FIXME!!!!!!!!!!!!!!!!!!
 	}
 
-	al_draw_filled_rectangle(x, y, x+width, y+height, back);
-	//al_draw_rectangle(x+0.5, y+0.5, x-0.5+width, y-0.5+height, fore, 1);
 	al_draw_line(abs_x+lx+0.5, abs_y+ly+0.5, abs_x+lx+0.5+lw, abs_y+ly+0.5+lh, fore, 1);
 	al_draw_filled_rounded_rectangle(x1, y1, x1+w, y1+h, 3, 3, fore);
 }
@@ -1547,12 +1538,25 @@ void TGUI_Slider::mouseDown(int rel_x, int rel_y, int abs_x, int abs_y, int mb)
 {
 	if (rel_x < 0 || rel_y < 0)
 		return;
+	
+	rel_x -= TAB_SIZE/2;
+	rel_y -= TAB_SIZE/2;
 
 	if (direction == TGUI_HORIZONTAL) {
-		pos = rel_x / (float)size;
+		if (rel_x < 0)
+			pos = 0;
+		else if (rel_x > (size-TAB_SIZE))
+			pos = 1;
+		else
+			pos = rel_x / (float)(size - TAB_SIZE);
 	}
 	else {
-		pos = rel_y / (float)size;
+		if (rel_y < 0)
+			pos = 0;
+		else if (rel_y > (size-TAB_SIZE))
+			pos = 1;
+		else
+			pos = rel_y / (float)(size - TAB_SIZE);
 	}
 
 	if (pos > 1) pos = 1;
@@ -1565,24 +1569,27 @@ void TGUI_Slider::mouseMoveAll(tgui::TGUIWidget *leftOut, int abs_x, int abs_y)
 	if (!dragging)
 		return;
 
-	int rel_x = abs_x - x;
-	int rel_y = abs_y - y;
+	int wx, wy;
+	tgui::determineAbsolutePosition(this, &wx, &wy);
+
+	int rel_x = abs_x - wx - TAB_SIZE/2;
+	int rel_y = abs_y - wy - TAB_SIZE/2;
 
 	if (direction == TGUI_HORIZONTAL) {
 		if (rel_x < 0)
 			pos = 0;
-		else if (rel_x > size)
+		else if (rel_x > (size-TAB_SIZE))
 			pos = 1;
 		else
-			pos = rel_x / (float)size;
+			pos = rel_x / (float)(size - TAB_SIZE);
 	}
 	else {
 		if (rel_y < 0)
 			pos = 0;
-		else if (rel_y > size)
+		else if (rel_y > (size-TAB_SIZE))
 			pos = 1;
 		else
-			pos = rel_y / (float)size;
+			pos = rel_y / (float)(size - TAB_SIZE);
 	}
 }
 
@@ -1618,9 +1625,7 @@ TGUI_Slider::TGUI_Slider(int x, int y, int size, TGUI_Direction direction) :
 	this->y = y;
 
 	width = direction == TGUI_VERTICAL ? 16 : size;
-	width += TAB_SIZE*2;
 	height = direction == TGUI_VERTICAL ? size : 16;
-	height += TAB_SIZE*2;
 
 	dragging = false;
 
