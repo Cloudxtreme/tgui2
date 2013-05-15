@@ -181,8 +181,8 @@ TGUIWidget *getNewWidgetParent(void);
 void centerWidget(TGUIWidget *widget, int x, int y);
 bool widgetIsChildOf(TGUIWidget *widget, TGUIWidget *parent);
 void setScale(float x_scale, float y_scale);
+void setOffset(float x_offset, float y_offset);
 void ignore(int type);
-void setRotation(int angle_in_degrees);
 void convertMousePosition(int *x, int *y);
 void bufferToScreenPos(int *x, int *y, int bw, int bh);
 void handleEvent_pretransformed(void *allegro_event);
@@ -212,7 +212,12 @@ void setScreenSize(int w, int h);
 ALLEGRO_DISPLAY *getDisplay(void);
 // Callback should return true to cancel dialog, it will get each widget
 // returned from tgui::update
-void doModal(ALLEGRO_EVENT_QUEUE *queue, bool (*callback)(TGUIWidget *widget), void (*resize_callback)());
+void doModal(
+	ALLEGRO_EVENT_QUEUE *queue, 
+	bool (*callback)(TGUIWidget *widget),
+	void (*before_flip_callback)(),
+	void (*resize_callback)()
+);
 
 } // End namespace tgui
 

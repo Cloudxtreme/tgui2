@@ -26,8 +26,8 @@ static int screenHeight = 0;
 
 static float x_scale = 1;
 static float y_scale = 1;
-
-static int rotation = 0;
+static float x_offset = 0;
+static float y_offset = 0;
 
 static std::vector<TGUIWidget *> focusOrderList;
 static bool focusWrap = false;
@@ -311,40 +311,16 @@ void setScale(float xscale, float yscale)
 	y_scale = yscale;
 }
 
-// Only accepts 0, 90, 180, 270
-void setRotation(int angle_in_degrees)
+void setOffset(float xoffset, float yoffset)
 {
-	rotation = angle_in_degrees;
+	x_offset = xoffset;
+	y_offset = yoffset;
 }
 
 void convertMousePosition(int *x, int *y)
 {
-	int in_x = *x;
-	int in_y = *y;
-
-	switch (rotation) {
-		case 0:
-			break;
-		case 90:
-			*x = (screenHeight-1) - in_y;
-			*y = in_x;
-			break;
-		case 180:
-			*x = (screenWidth-1) - in_x;
-			*y = (screenHeight-1) - in_y;
-			break;
-		case 270:
-			*x = in_y;
-			*y = (screenWidth-1) - in_x;
-			break;
-	}
-
-	const ALLEGRO_TRANSFORM *t = al_get_current_transform();
-	float tx = t->m[3][0];
-	float ty = t->m[3][1];
-
-	*x -= tx;
-	*y -= ty;
+	*x -= x_offset;
+	*y -= y_offset;
 
 	*x = *x / x_scale;
 	*y = *y / y_scale;
@@ -352,28 +328,8 @@ void convertMousePosition(int *x, int *y)
 
 void bufferToScreenPos(int *x, int *y, int bw, int bh)
 {
-	int in_x = *x;
-	int in_y = *y;
-
-	switch (rotation) {
-		case 0:
-			break;
-		case 90:
-			*y = (bw-1) - in_x;
-			*x = in_y;
-			break;
-		case 180:
-			*y = (bh-1) - in_y;
-			*x = (bw-1) - in_x;
-			break;
-		case 270:
-			*y = in_x;
-			*x = (bh-1) - in_y;
-			break;
-	}
-	
-	*x = *x * x_scale;
-	*y = *y * y_scale;
+	*x = *x * x_scale + x_offset;
+	*y = *y * y_scale + y_offset;
 }
 
 void setFocusWrap(bool wrap)
@@ -969,14 +925,19 @@ ALLEGRO_DISPLAY *getDisplay(void)
 	return display;
 }
 
-void doModal(ALLEGRO_EVENT_QUEUE *queue, bool (*callback)(TGUIWidget *widget), void (*resize_callback)())
+void doModal(
+	ALLEGRO_EVENT_QUEUE *queue,
+	bool (*callback)(TGUIWidget *widget),
+	void (*before_flip_callback)(),
+	void (*resize_callback)()
+	)
 {
-	int dw = al_get_display_width(al_get_current_display());
-	int dh = al_get_display_height(al_get_current_display());
-	ALLEGRO_BITMAP *back = al_create_bitmap(dw, dh);
 	ALLEGRO_BITMAP *target = al_get_target_bitmap();
+	int dw = al_get_bitmap_width(target);
+	int dh = al_get_bitmap_height(target);
+	ALLEGRO_BITMAP *back = al_create_bitmap(dw, dh);
 	al_set_target_bitmap(back);
-	al_draw_bitmap(al_get_backbuffer(al_get_current_display()), 0, 0, 0);
+	al_draw_bitmap(target, 0, 0, 0);
 	al_set_target_bitmap(target);
 
 	int redraw = 0;
@@ -1032,6 +993,10 @@ void doModal(ALLEGRO_EVENT_QUEUE *queue, bool (*callback)(TGUIWidget *widget), v
 			for (unsigned int i = 0; i < postDrawWidgets.size(); i++) {
 				determineAbsolutePosition(postDrawWidgets[i], &abs_x, &abs_y);
 				postDrawWidgets[i]->postDraw(abs_x, abs_y);
+			}
+
+			if (before_flip_callback) {
+				before_flip_callback();
 			}
 
 			al_flip_display();
