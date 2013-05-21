@@ -214,6 +214,7 @@ ALLEGRO_DISPLAY *getDisplay(void);
 // returned from tgui::update
 void doModal(
 	ALLEGRO_EVENT_QUEUE *queue, 
+	ALLEGRO_BITMAP *background,
 	bool (*callback)(TGUIWidget *widget),
 	void (*before_flip_callback)(),
 	void (*resize_callback)()

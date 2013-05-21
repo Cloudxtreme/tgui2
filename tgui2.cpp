@@ -925,20 +925,48 @@ ALLEGRO_DISPLAY *getDisplay(void)
 	return display;
 }
 
+static ALLEGRO_BITMAP *clone_target()
+{
+	int w = al_get_display_width(display);
+	int h = al_get_display_height(display);
+	ALLEGRO_BITMAP *target = al_get_target_bitmap();
+
+	ALLEGRO_BITMAP *b = al_create_bitmap(w, h);
+
+	ALLEGRO_LOCKED_REGION *lr1 = al_lock_bitmap(b, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
+	ALLEGRO_LOCKED_REGION *lr2 = al_lock_bitmap_region(
+		target,
+		0, 0, w, h,
+		ALLEGRO_PIXEL_FORMAT_ANY,
+		ALLEGRO_LOCK_READONLY
+	);
+	int pixel_size = al_get_pixel_size(al_get_bitmap_format(target));
+	for (int y = 0; y < h; y++) {
+		uint8_t *d1 = (uint8_t *)lr1->data + lr1->pitch * y;
+		uint8_t *d2 = (uint8_t *)lr2->data + lr2->pitch * y;
+		memcpy(d1, d2, pixel_size*w);
+	}
+	al_unlock_bitmap(b);
+	al_unlock_bitmap(target);
+
+	return b;
+}
+
 void doModal(
 	ALLEGRO_EVENT_QUEUE *queue,
+	ALLEGRO_BITMAP *background,
 	bool (*callback)(TGUIWidget *widget),
 	void (*before_flip_callback)(),
 	void (*resize_callback)()
 	)
 {
-	ALLEGRO_BITMAP *target = al_get_target_bitmap();
-	int dw = al_get_bitmap_width(target);
-	int dh = al_get_bitmap_height(target);
-	ALLEGRO_BITMAP *back = al_create_bitmap(dw, dh);
-	al_set_target_bitmap(back);
-	al_draw_bitmap(target, 0, 0, 0);
-	al_set_target_bitmap(target);
+	ALLEGRO_BITMAP *back;
+	if (background) {
+		back = background;
+	}
+	else {
+		back = clone_target();
+	}
 
 	int redraw = 0;
 	ALLEGRO_TIMER *logic_timer = al_create_timer(1.0/60.0);
@@ -981,7 +1009,7 @@ void doModal(
 			al_copy_transform(&backup, al_get_current_transform());
 			al_identity_transform(&t);
 			al_use_transform(&t);
-			al_draw_tinted_bitmap(back, al_map_rgba_f(0.5f, 0.5f, 0.5f, 0.5f), 0, 0, 0);
+			//al_draw_tinted_bitmap(back, al_map_rgb_f(0.5f, 0.5f, 0.5f), 0, 0, 0);
 			al_use_transform(&backup);
 		
 			int abs_x, abs_y;
@@ -1004,7 +1032,9 @@ void doModal(
 	}
 
 done:
-	al_destroy_bitmap(back);
+	if (!background) {
+		al_destroy_bitmap(back);
+	}
 
 	al_destroy_timer(logic_timer);
 }
