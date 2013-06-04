@@ -927,6 +927,7 @@ ALLEGRO_DISPLAY *getDisplay(void)
 
 static ALLEGRO_BITMAP *clone_target()
 {
+#if 1
 	int w = al_get_display_width(display);
 	int h = al_get_display_height(display);
 	ALLEGRO_BITMAP *target = al_get_target_bitmap();
@@ -950,6 +951,17 @@ static ALLEGRO_BITMAP *clone_target()
 	al_unlock_bitmap(target);
 
 	return b;
+#else
+	ALLEGRO_BITMAP *b;
+	ALLEGRO_BITMAP *target = al_get_target_bitmap();
+	int w = al_get_bitmap_width(target);
+	int h = al_get_bitmap_height(target);
+	b = al_create_bitmap(w, h);
+	al_set_target_bitmap(b);
+	al_draw_bitmap(target, 0, 0, 0);
+	al_set_target_bitmap(target);
+	return b;
+#endif
 }
 
 void doModal(
@@ -1009,7 +1021,7 @@ void doModal(
 			al_copy_transform(&backup, al_get_current_transform());
 			al_identity_transform(&t);
 			al_use_transform(&t);
-			//al_draw_tinted_bitmap(back, al_map_rgb_f(0.5f, 0.5f, 0.5f), 0, 0, 0);
+			al_draw_tinted_bitmap(back, al_map_rgb_f(0.5f, 0.5f, 0.5f), 0, 0, 0);
 			al_use_transform(&backup);
 		
 			int abs_x, abs_y;
