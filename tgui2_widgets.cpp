@@ -1025,7 +1025,7 @@ void TGUI_RadioMenuItem::setSelected(void)
 	group->selected = id;
 }
 
-TGUI_RadioMenuItem::TGUI_RadioMenuItem(std::string name, int shortcut_keycode, RadioGroup *group, int id) :
+TGUI_RadioMenuItem::TGUI_RadioMenuItem(std::string name, int shortcut_keycode, TGUI_RadioGroup *group, int id) :
 	TGUI_TextMenuItem(name, 0),
 	group(group),
 	id(id)

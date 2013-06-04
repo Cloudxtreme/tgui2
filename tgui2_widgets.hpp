@@ -196,24 +196,24 @@ protected:
 	bool checked;
 };
 
+struct TGUI_RadioGroup {
+	int selected;
+};
+
 class TGUI_RadioMenuItem : public TGUI_TextMenuItem
 {
 public:
-	struct RadioGroup {
-		int selected;
-	};
-
 	void draw(int abs_x, int abs_y);
 	tgui::TGUIWidget *update(void);
 
 	bool isSelected(void);
 	void setSelected(void);
 
-	TGUI_RadioMenuItem(std::string name, int shortcut_keycode, RadioGroup *group, int id);
+	TGUI_RadioMenuItem(std::string name, int shortcut_keycode, TGUI_RadioGroup *group, int id);
 	virtual ~TGUI_RadioMenuItem(void) {}
 
 protected:
-	RadioGroup *group;
+	TGUI_RadioGroup *group;
 	int id;
 };
 
@@ -345,7 +345,7 @@ public:
 protected:
 	std::string text;
 };
-
+	
 class TGUI_TextField : public TGUI_Extended_Widget
 {
 public:
