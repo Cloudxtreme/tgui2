@@ -1,5 +1,7 @@
 #include "tgui2.hpp"
 
+#include <allegro5/allegro_primitives.h>
+
 #include <cstdio>
 #include <cmath>
 
@@ -253,6 +255,17 @@ void draw()
 	}
 
 	drawRect(0, 0, screenWidth, screenHeight);
+
+	// Draw focus
+	if (focussedWidget) {
+		int x1 = focussedWidget->getX();
+		int y1 = focussedWidget->getY();
+		int x2 = x1 + focussedWidget->getWidth();
+		int y2 = y1 + focussedWidget->getHeight();
+		float f = fmod(al_get_time(), 2);
+		if (f > 1) f = 2 - f;
+		al_draw_rectangle(x1, y1, x2, y2, al_map_rgb_f(f, f, 0), 1);
+	}
 	
 	for (unsigned int i = 0; i < postDrawWidgets.size(); i++) {
 		determineAbsolutePosition(postDrawWidgets[i], &abs_x, &abs_y);
@@ -272,6 +285,8 @@ void push()
 	TGUI *gui = new TGUI;
 
 	stack.insert(stack.begin(), gui);
+
+	focussedWidget = NULL;
 }
 
 bool pop()
@@ -281,6 +296,8 @@ bool pop()
 
 	deleteGUI(stack[0]);
 	stack.erase(stack.begin());
+
+	focussedWidget = NULL;
 
 	return true;
 }
@@ -409,6 +426,9 @@ void handleEvent_pretransformed(void *allegro_event)
 				rel_y = my - abs_y;
 				if (down) {
 					TGUIWidget *leftOut = w->chainMouseDown(rel_x, rel_y, mx, my, event->mouse.button);
+					if (leftOut) {
+						focussedWidget = leftOut;
+					}
 					for (unsigned int i = 0; i < stack[0]->widgets.size(); i++) {
 						TGUIWidget *w2 = stack[0]->widgets[i];
 						if (w2->getParent() == NULL) {
@@ -892,6 +912,10 @@ void TGUIWidget::remove(void) {
 	
 	if (child) {
 		child->remove();
+	}
+
+	if (this == focussedWidget) {
+		focussedWidget = NULL;
 	}
 }
 
