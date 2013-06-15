@@ -116,9 +116,9 @@ public:
 	virtual TGUIWidget *chainMouseMove(int rel_x, int rel_y, int abs_x, int abs_y, int z, int w);
 	virtual TGUIWidget *chainMouseDown(int rel_x, int rel_y, int abs_x, int abs_y, int mb);
 	virtual TGUIWidget *chainMouseUp(int rel_x, int rel_y, int abs_x, int abs_y, int b);
-	void chainKeyDown(int keycode);
-	void chainKeyUp(int keycode);
-	void chainKeyChar(int keycode, int unichar);
+	virtual void chainKeyDown(int keycode);
+	virtual void chainKeyUp(int keycode);
+	virtual void chainKeyChar(int keycode, int unichar);
 	virtual void chainDraw(void);
 
 	/* losing/gaining: return true to lose/gain, false to retain focus */

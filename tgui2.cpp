@@ -928,9 +928,9 @@ ALLEGRO_DISPLAY *getDisplay(void)
 static ALLEGRO_BITMAP *clone_target()
 {
 #if 1
-	int w = al_get_display_width(display);
-	int h = al_get_display_height(display);
 	ALLEGRO_BITMAP *target = al_get_target_bitmap();
+	int w = al_get_bitmap_width(target);
+	int h = al_get_bitmap_height(target);
 
 	ALLEGRO_BITMAP *b = al_create_bitmap(w, h);
 
