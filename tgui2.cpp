@@ -511,6 +511,57 @@ void handleEvent_pretransformed(void *allegro_event)
 			}
 			break;
 		}
+		case ALLEGRO_EVENT_JOYSTICK_AXIS: {
+			int stick = event->joystick.stick;
+			int axis = event->joystick.axis;
+			float value = event->joystick.pos;
+			// FIXME: pass these on if applicable
+			if (axis == 0) {
+				if (value < -0.5) {
+					TGUIWidget *w = getWidgetInDirection(focussedWidget, -1, 0);
+					if (w) {
+						setFocus(w);
+					}
+				}
+				else if (value > 0.5) {
+					TGUIWidget *w = getWidgetInDirection(focussedWidget, 1, 0);
+					if (w) {
+						setFocus(w);
+					}
+				}
+			}
+			else {
+				if (value < -0.5) {
+					TGUIWidget *w = getWidgetInDirection(focussedWidget, 0, -1);
+					if (w) {
+						setFocus(w);
+					}
+				}
+				else if (value > 0.5) {
+					TGUIWidget *w = getWidgetInDirection(focussedWidget, 0, 1);
+					if (w) {
+						setFocus(w);
+					}
+				}
+			}
+			break;
+		}
+		case ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN: {
+			for (size_t i = 0; i < stack[0]->widgets.size(); i++) {
+				if (stack[0]->widgets[i]->getParent() == NULL) {
+					stack[0]->widgets[i]->chainJoyButtonDown(event->joystick.button);
+				}
+			}
+			break;
+		}
+		case ALLEGRO_EVENT_JOYSTICK_BUTTON_UP: {
+			for (size_t i = 0; i < stack[0]->widgets.size(); i++) {
+				if (stack[0]->widgets[i]->getParent() == NULL) {
+					stack[0]->widgets[i]->chainJoyButtonUp(event->joystick.button);
+				}
+			}
+			break;
+		}
 	}
 }
 
@@ -730,6 +781,45 @@ void TGUIWidget::chainKeyChar(int keycode, int unichar)
 	if (child) {
 		child->chainKeyChar(
 			keycode, unichar
+		);
+	}
+}
+
+void TGUIWidget::chainJoyButtonDown(int button)
+{
+	// handle it within outself
+	joyButtonDown(button);
+
+	// pass it on to the child
+	if (child) {
+		child->chainJoyButtonDown(
+			button
+		);
+	}
+}
+
+void TGUIWidget::chainJoyButtonUp(int button)
+{
+	// handle it within outself
+	joyButtonUp(button);
+
+	// pass it on to the child
+	if (child) {
+		child->chainJoyButtonUp(
+			button
+		);
+	}
+}
+
+void TGUIWidget::chainJoyAxis(int stick, int axis, float value)
+{
+	// handle it within outself
+	joyAxis(stick, axis, value);
+
+	// pass it on to the child
+	if (child) {
+		child->chainJoyAxis(
+			stick, axis, value
 		);
 	}
 }

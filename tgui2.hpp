@@ -79,6 +79,9 @@ public:
 	virtual void keyDown(int keycode) {}
 	virtual void keyUp(int keycode) {}
 	virtual void keyChar(int keycode, int unichar) {}
+	virtual void joyButtonDown(int button) {}
+	virtual void joyButtonUp(int button) {}
+	virtual void joyAxis(int stick, int axis, float value) {}
 
 	virtual void mouseMoveAll(TGUIWidget *leftOut, int abs_x, int abs_y)
 	{
@@ -119,6 +122,9 @@ public:
 	virtual void chainKeyDown(int keycode);
 	virtual void chainKeyUp(int keycode);
 	virtual void chainKeyChar(int keycode, int unichar);
+	virtual void chainJoyButtonDown(int button);
+	virtual void chainJoyButtonUp(int button);
+	virtual void chainJoyAxis(int stick, int axis, float value);
 	virtual void chainDraw(void);
 
 	/* losing/gaining: return true to lose/gain, false to retain focus */
