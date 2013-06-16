@@ -242,6 +242,7 @@ void doModal(
 	void (*before_flip_callback)(),
 	void (*resize_callback)()
 );
+void drawFocusRectangle(int x, int y, int w, int h);
 
 } // End namespace tgui
 

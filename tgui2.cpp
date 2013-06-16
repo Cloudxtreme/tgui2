@@ -262,13 +262,11 @@ void draw()
 
 	// Draw focus
 	if (focussedWidget && focussedWidget->getDrawFocus()) {
-		int x1 = focussedWidget->getX();
-		int y1 = focussedWidget->getY();
-		int x2 = x1 + focussedWidget->getWidth();
-		int y2 = y1 + focussedWidget->getHeight();
-		float f = fmod(al_get_time(), 2);
-		if (f > 1) f = 2 - f;
-		al_draw_rectangle(x1, y1, x2, y2, al_map_rgb_f(f, f, 0), 1);
+		int x = focussedWidget->getX();
+		int y = focussedWidget->getY();
+		int w = focussedWidget->getWidth();
+		int h = focussedWidget->getHeight();
+		drawFocusRectangle(x, y, w, h);
 	}
 	
 	for (size_t i = 0; i < postDrawWidgets.size(); i++) {
@@ -1278,6 +1276,13 @@ static TGUIWidget *getWidgetInDirection(TGUIWidget *widget, int xdir, int ydir)
 	}
 
 	return closest_widget;
+}
+
+void drawFocusRectangle(int x, int y, int w, int h)
+{
+	float f = fmod(al_get_time(), 2);
+	if (f > 1) f = 2 - f;
+	al_draw_rectangle(x, y, x+w, y+h, al_map_rgb_f(f, f, 0), 1);
 }
 
 } // end namespace tgui
