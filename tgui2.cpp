@@ -58,6 +58,14 @@ static bool keyState[ALLEGRO_KEY_MAX] = { 0, };
 static int screenSizeOverrideX = -1;
 static int screenSizeOverrideY = -1;
 
+static bool joyButtonDown = false;
+static int joyButtonDownNum;
+static double joyButtonDownTime;
+static bool joyAxisDown = false;
+static int joyAxisDownXdir;
+static int joyAxisDownYdir;
+static double joyAxisDownTime;
+
 inline bool checkBoxCollision(int x1, int y1, int x2, int y2, int x3, int y3,
 	int x4, int y4)
 {
@@ -208,6 +216,45 @@ void addWidget(TGUIWidget* widget)
 	stack[0]->widgets.push_back(widget);
 }
 
+static void handleJoyAxisRepeat(int stick, int axis, float value)
+{
+	bool used = false;
+	for (size_t i = 0; i < stack[0]->widgets.size(); i++) {
+		if (stack[0]->widgets[i]->getParent() == NULL) {
+			used = used || stack[0]->widgets[i]->chainJoyAxisRepeat(stick, axis, value);
+		}
+	}
+	if (!used) {
+		if (axis == 0) {
+			if (value <= -0.5f) {
+				TGUIWidget *w = getWidgetInDirection(focussedWidget, -1, 0);
+				if (w) {
+					setFocus(w);
+				}
+			}
+			else if (value >= 0.5f) {
+				TGUIWidget *w = getWidgetInDirection(focussedWidget, 1, 0);
+				if (w) {
+					setFocus(w);
+				}
+			}
+		}
+		else {
+			if (value <= -0.5f) {
+				TGUIWidget *w = getWidgetInDirection(focussedWidget, 0, -1);
+				if (w) {
+					setFocus(w);
+				}
+			}
+			else if (value >= 0.5f) {
+				TGUIWidget *w = getWidgetInDirection(focussedWidget, 0, 1);
+				if (w) {
+					setFocus(w);
+				}
+			}
+		}
+	}
+}
 
 TGUIWidget *update()
 {
@@ -217,6 +264,26 @@ TGUIWidget *update()
 		elapsed = 50;
 	}
 	lastUpdate = currTime;
+
+	if (joyButtonDown) {
+		if (al_get_time()-0.33 > joyButtonDownTime) {
+			joyButtonDownTime = al_get_time();
+			for (size_t i = 0; i < stack[0]->widgets.size(); i++) {
+				if (stack[0]->widgets[i]->getParent() == NULL) {
+					stack[0]->widgets[i]->chainJoyButtonDownRepeat(joyButtonDownNum);
+				}
+			}
+		}
+	}
+	if (joyAxisDown) {
+		if (al_get_time()-0.33 > joyAxisDownTime) {
+			joyAxisDownTime = al_get_time();
+			int stick = 0; // FIXME
+			int axis = joyAxisDownXdir ? 0 : 1;
+			float value = joyAxisDownXdir ? joyAxisDownXdir : joyAxisDownYdir;
+			handleJoyAxisRepeat(stick, axis, value);
+		}
+	}
 
 	for (size_t i = 0; i < stack[0]->widgets.size(); i++) {
 		TGUIWidget *widget = stack[0]->widgets[i];
@@ -518,53 +585,68 @@ void handleEvent_pretransformed(void *allegro_event)
 			int stick = event->joystick.stick;
 			int axis = event->joystick.axis;
 			float value = event->joystick.pos;
-			bool used = false;
-			for (size_t i = 0; i < stack[0]->widgets.size(); i++) {
-				if (stack[0]->widgets[i]->getParent() == NULL) {
-					used = used || stack[0]->widgets[i]->chainJoyAxis(stick, axis, value);
-				}
-			}
-			if (!used) {
+
+			if (fabs(value) >= 0.5f) {
+				int xdir, ydir;
 				if (axis == 0) {
-					if (value < -0.5) {
-						TGUIWidget *w = getWidgetInDirection(focussedWidget, -1, 0);
-						if (w) {
-							setFocus(w);
-						}
+					ydir = 0;
+					if (value <= -0.5f) {
+						xdir = -1;
 					}
-					else if (value > 0.5) {
-						TGUIWidget *w = getWidgetInDirection(focussedWidget, 1, 0);
-						if (w) {
-							setFocus(w);
-						}
+					else {
+						xdir = 1;
 					}
 				}
 				else {
-					if (value < -0.5) {
-						TGUIWidget *w = getWidgetInDirection(focussedWidget, 0, -1);
-						if (w) {
-							setFocus(w);
-						}
+					xdir = 0;
+					if (value <= -0.5f) {
+						ydir = -1;
 					}
-					else if (value > 0.5) {
-						TGUIWidget *w = getWidgetInDirection(focussedWidget, 0, 1);
-						if (w) {
-							setFocus(w);
-						}
+					else {
+						ydir = 1;
 					}
 				}
+				joyAxisDown = true;
+				joyAxisDownXdir = xdir;
+				joyAxisDownYdir = ydir;
+				joyAxisDownTime = al_get_time();
 			}
+			else {
+				joyAxisDown = false;
+			}
+
+			for (size_t i = 0; i < stack[0]->widgets.size(); i++) {
+				if (stack[0]->widgets[i]->getParent() == NULL) {
+					stack[0]->widgets[i]->chainJoyAxis(stick, axis, value);
+				}
+			}
+			handleJoyAxisRepeat(stick, axis, value);
 			break;
 		}
 		case ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN: {
+			if (!joyButtonDown) {
+				joyButtonDown = true;
+				joyButtonDownNum = event->joystick.button;
+				joyButtonDownTime = al_get_time();
+			}
+
 			for (size_t i = 0; i < stack[0]->widgets.size(); i++) {
 				if (stack[0]->widgets[i]->getParent() == NULL) {
 					stack[0]->widgets[i]->chainJoyButtonDown(event->joystick.button);
 				}
 			}
+			for (size_t i = 0; i < stack[0]->widgets.size(); i++) {
+				if (stack[0]->widgets[i]->getParent() == NULL) {
+					stack[0]->widgets[i]->chainJoyButtonDownRepeat(event->joystick.button);
+				}
+			}
 			break;
 		}
 		case ALLEGRO_EVENT_JOYSTICK_BUTTON_UP: {
+			if (joyButtonDown && event->joystick.button == joyButtonDownNum) {
+				joyButtonDown = false;
+			}
+
 			for (size_t i = 0; i < stack[0]->widgets.size(); i++) {
 				if (stack[0]->widgets[i]->getParent() == NULL) {
 					stack[0]->widgets[i]->chainJoyButtonUp(event->joystick.button);
@@ -808,6 +890,19 @@ void TGUIWidget::chainJoyButtonDown(int button)
 	}
 }
 
+void TGUIWidget::chainJoyButtonDownRepeat(int button)
+{
+	// handle it within outself
+	joyButtonDownRepeat(button);
+
+	// pass it on to the child
+	if (child) {
+		child->chainJoyButtonDownRepeat(
+			button
+		);
+	}
+}
+
 void TGUIWidget::chainJoyButtonUp(int button)
 {
 	// handle it within outself
@@ -821,14 +916,25 @@ void TGUIWidget::chainJoyButtonUp(int button)
 	}
 }
 
-bool TGUIWidget::chainJoyAxis(int stick, int axis, float value)
+void TGUIWidget::chainJoyAxis(int stick, int axis, float value)
 {
 	// handle it within outself
-	bool used = joyAxis(stick, axis, value);
+	joyAxis(stick, axis, value);
 
 	// pass it on to the child
 	if (child) {
-		used = used || child->chainJoyAxis(stick, axis, value);
+		child->chainJoyAxis(stick, axis, value);
+	}
+}
+
+bool TGUIWidget::chainJoyAxisRepeat(int stick, int axis, float value)
+{
+	// handle it within outself
+	bool used = joyAxisRepeat(stick, axis, value);
+
+	// pass it on to the child
+	if (child) {
+		used = used || child->chainJoyAxisRepeat(stick, axis, value);
 	}
 
 	return used;
@@ -1258,10 +1364,9 @@ static TGUIWidget *getWidgetInDirection(TGUIWidget *widget, int xdir, int ydir)
 		_x2 = w->getX() + w->getWidth();
 		_y1 = w->getY();
 		_y2 = w->getY() + w->getHeight();
-		if (x1 >= _x2 || y1 >= _y2 || x2 < _x1 || y2 < _y1) {
-			continue;
+		if (checkBoxCollision(x1, y1, x2, y2, _x1, _y1, _x2, _y2)) {
+			colliding.push_back(w);
 		}
-		colliding.push_back(w);
 	}
 
 	// FIXME: certain conditions here: (If there isn't one, go to the next on in own group -- if none in group, go to next group. failing that, do nothing) 
@@ -1302,6 +1407,13 @@ void drawFocusRectangle(int x, int y, int w, int h)
 	float f = fmod(al_get_time(), 2);
 	if (f > 1) f = 2 - f;
 	al_draw_rectangle(x+0.5f, y+0.5f, x+w-0.5f, y+h-0.5f, al_map_rgb_f(f, f, 0), 1);
+}
+
+// Must be called when al_flush_event_queue is called in the game
+void flush()
+{
+	joyButtonDown = false;
+	joyAxisDown = false;
 }
 
 } // end namespace tgui
