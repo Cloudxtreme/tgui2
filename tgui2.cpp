@@ -1181,6 +1181,16 @@ void doModal(
 				preDrawWidgets[i]->preDraw(abs_x, abs_y);
 			}
 			::drawRect(stack[0], 0, 0, screenWidth, screenHeight);
+
+			// Draw focus
+			if (focussedWidget && focussedWidget->getDrawFocus()) {
+				int x = focussedWidget->getX();
+				int y = focussedWidget->getY();
+				int w = focussedWidget->getWidth();
+				int h = focussedWidget->getHeight();
+				drawFocusRectangle(x, y, w, h);
+			}
+
 			for (size_t i = 0; i < postDrawWidgets.size(); i++) {
 				determineAbsolutePosition(postDrawWidgets[i], &abs_x, &abs_y);
 				postDrawWidgets[i]->postDraw(abs_x, abs_y);
@@ -1240,7 +1250,7 @@ static TGUIWidget *getWidgetInDirection(TGUIWidget *widget, int xdir, int ydir)
 
 	for (size_t i = 0; i < stack[0]->widgets.size(); i++) {
 		TGUIWidget* w = stack[0]->widgets[i];
-		if (w == widget) {
+		if (w == widget || !w->acceptsFocus()) {
 			continue;
 		}
 		int _x1, _y1, _x2, _y2;
