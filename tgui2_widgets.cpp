@@ -1957,7 +1957,7 @@ void TGUI_List::mouseDown(int rel_x, int rel_y, int abs_x, int abs_y, int mb)
 	if (rel_y >= 0) {
 		int lh = al_get_font_line_height(tgui::getFont());
 		int sel = rel_y / lh;
-		if (sel < 0 || sel >= labels.size()) {
+		if (sel < 0 || sel >= (int)labels.size()) {
 			return;
 		}
 		selected = sel;
@@ -1986,7 +1986,7 @@ void TGUI_List::draw(int abs_x, int abs_y)
 		ALLEGRO_COLOR back;
 		int yy = abs_y + lh*i;
 		fore = al_color_name("black");
-		if (i == selected) {
+		if ((int)i == selected) {
 			back = ::fore;
 			al_draw_filled_rectangle(abs_x, yy, abs_x+width, yy+lh, back);
 		}

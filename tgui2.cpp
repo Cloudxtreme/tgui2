@@ -786,6 +786,8 @@ bool TGUIWidget::chainKeyChar(int keycode, int unichar)
 	if (child) {
 		used = used || child->chainKeyChar(keycode, unichar);
 	}
+
+	return used;
 }
 
 void TGUIWidget::chainJoyButtonDown(int button)
@@ -823,6 +825,8 @@ bool TGUIWidget::chainJoyAxis(int stick, int axis, float value)
 	if (child) {
 		used = used || child->chainJoyAxis(stick, axis, value);
 	}
+
+	return used;
 }
 
 void TGUIWidget::chainDraw(void)
