@@ -155,14 +155,16 @@ void TGUI_Splitter::keyUp(int keycode)
 	}
 }
 
-void TGUI_Splitter::keyChar(int keycode, int unichar)
+bool TGUI_Splitter::keyChar(int keycode, int unichar)
 {
+	bool used = false;
 	for (unsigned int i = 0; i < widgets.size(); i++) {
 		TGUIWidget *widget = widgets[i];
 		if (widget) {
-			widget->keyChar(keycode, unichar);
+			used = used || widget->keyChar(keycode, unichar);
 		}
 	}
+	return used;
 }
 
 void TGUI_Splitter::set_resizable(int split, bool value)
@@ -1299,9 +1301,9 @@ void TGUI_ScrollPane::keyUp(int keycode)
 	child->keyUp(keycode);
 }
 	
-void TGUI_ScrollPane::keyChar(int keycode, int unichar)
+bool TGUI_ScrollPane::keyChar(int keycode, int unichar)
 {
-	child->keyChar(keycode, unichar);
+	return child->keyChar(keycode, unichar);
 }
 	
 void TGUI_ScrollPane::draw(int abs_x, int abs_y)
@@ -1737,10 +1739,12 @@ void TGUI_TextField::findOffset(void)
 	}
 }
 
-void TGUI_TextField::keyChar(int keycode, int unichar)
+bool TGUI_TextField::keyChar(int keycode, int unichar)
 {
+	bool used = false;
+
 	if (this != tgui::getFocussedWidget())
-		return;
+		return false;
 
 	if (keycode == ALLEGRO_KEY_BACKSPACE) {
 		if (cursorPos > 0) {
@@ -1756,6 +1760,7 @@ void TGUI_TextField::keyChar(int keycode, int unichar)
 		}
 	}
 	else if (keycode == ALLEGRO_KEY_LEFT) {
+		used = true;
 		if (cursorPos > 0) {
 			cursorPos--;
 			if (cursorPos < offset)
@@ -1763,6 +1768,7 @@ void TGUI_TextField::keyChar(int keycode, int unichar)
 		}
 	}
 	else if (keycode == ALLEGRO_KEY_RIGHT) {
+		used = true;
 		if (cursorPos < (int)str.length()) {
 			cursorPos++;
 			findOffset();
@@ -1780,6 +1786,8 @@ void TGUI_TextField::keyChar(int keycode, int unichar)
 	if (validate) {
 		validates = validate(str);
 	}
+
+	return used;
 }
 
 void TGUI_TextField::setValidator(bool (*validate)(const std::string str))

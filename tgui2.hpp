@@ -72,16 +72,18 @@ public:
 
 	// give relative and absolute coordinates. rel_x/y can be -1 if not
 	// over widget
+	// keyChar and joyAxis should return true if a directional event was used
+	// (ie left/right/up/down arrows/axis)
 	virtual void mouseMove(int rel_x, int rel_y, int abs_x, int abs_y) {}
 	virtual void mouseScroll(int z, int w) {}
 	virtual void mouseDown(int rel_x, int rel_y, int abs_x, int abs_y, int mb) {}
 	virtual void mouseUp(int rel_x, int rel_y, int abs_x, int abs_y, int b) {}
 	virtual void keyDown(int keycode) {}
 	virtual void keyUp(int keycode) {}
-	virtual void keyChar(int keycode, int unichar) {}
+	virtual bool keyChar(int keycode, int unichar) { return false; }
 	virtual void joyButtonDown(int button) {}
 	virtual void joyButtonUp(int button) {}
-	virtual void joyAxis(int stick, int axis, float value) {}
+	virtual bool joyAxis(int stick, int axis, float value) { return false; }
 
 	virtual void mouseMoveAll(TGUIWidget *leftOut, int abs_x, int abs_y)
 	{
@@ -121,10 +123,10 @@ public:
 	virtual TGUIWidget *chainMouseUp(int rel_x, int rel_y, int abs_x, int abs_y, int b);
 	virtual void chainKeyDown(int keycode);
 	virtual void chainKeyUp(int keycode);
-	virtual void chainKeyChar(int keycode, int unichar);
+	virtual bool chainKeyChar(int keycode, int unichar);
 	virtual void chainJoyButtonDown(int button);
 	virtual void chainJoyButtonUp(int button);
-	virtual void chainJoyAxis(int stick, int axis, float value);
+	virtual bool chainJoyAxis(int stick, int axis, float value);
 	virtual void chainDraw(void);
 
 	/* losing/gaining: return true to lose/gain, false to retain focus */
@@ -132,14 +134,20 @@ public:
 	virtual bool gainingFocus(void) { return true; }
 	virtual void lostFocus(void) {}
 	virtual void gainedFocus(void) {}
+
 	void setFocusGroup(int focusGroup, int numberInFocusGroup) {
 		this->focusGroup = focusGroup;
 		this->numberInFocusGroup = numberInFocusGroup;
 	}
+	bool getDrawFocus() { return drawFocus; }
+	void setDrawFocus(bool draw) { drawFocus = draw; }
 
-	TGUIWidget() {
-		parent = child = NULL;
-		focusGroup = 0;
+	TGUIWidget() :
+		parent(NULL),
+		child(NULL),
+		focusGroup(0),
+		drawFocus(true)
+	{
 	}
 
 	virtual ~TGUIWidget() {}
@@ -173,6 +181,7 @@ protected:
 
 	int focusGroup;
 	int numberInFocusGroup;
+	bool drawFocus;
 };
 
 long currentTimeMillis();

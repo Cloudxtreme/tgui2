@@ -261,7 +261,7 @@ void draw()
 	drawRect(0, 0, screenWidth, screenHeight);
 
 	// Draw focus
-	if (focussedWidget) {
+	if (focussedWidget && focussedWidget->getDrawFocus()) {
 		int x1 = focussedWidget->getX();
 		int y1 = focussedWidget->getY();
 		int x2 = x1 + focussedWidget->getWidth();
@@ -477,35 +477,35 @@ void handleEvent_pretransformed(void *allegro_event)
 			break;
 		}
 		case ALLEGRO_EVENT_KEY_CHAR: {
-			// FIXME: only use arrows if widget is not trapping all input (figure out api for that)
-			if (focussedWidget && event->keyboard.keycode == ALLEGRO_KEY_LEFT) {
-				TGUIWidget *w = getWidgetInDirection(focussedWidget, -1, 0);
-				if (w) {
-					setFocus(w);
+			bool used = false;
+			for (size_t i = 0; i < stack[0]->widgets.size(); i++) {
+				if (stack[0]->widgets[i]->getParent() == NULL) {
+					used = used || stack[0]->widgets[i]->chainKeyChar(event->keyboard.keycode, event->keyboard.unichar);
 				}
 			}
-			else if (focussedWidget && event->keyboard.keycode == ALLEGRO_KEY_RIGHT) {
-				TGUIWidget *w = getWidgetInDirection(focussedWidget, 1, 0);
-				if (w) {
-					setFocus(w);
+			if (!used) {
+				if (focussedWidget && event->keyboard.keycode == ALLEGRO_KEY_LEFT) {
+					TGUIWidget *w = getWidgetInDirection(focussedWidget, -1, 0);
+					if (w) {
+						setFocus(w);
+					}
 				}
-			}
-			else if (focussedWidget && event->keyboard.keycode == ALLEGRO_KEY_UP) {
-				TGUIWidget *w = getWidgetInDirection(focussedWidget, 0, -1);
-				if (w) {
-					setFocus(w);
+				else if (focussedWidget && event->keyboard.keycode == ALLEGRO_KEY_RIGHT) {
+					TGUIWidget *w = getWidgetInDirection(focussedWidget, 1, 0);
+					if (w) {
+						setFocus(w);
+					}
 				}
-			}
-			else if (focussedWidget && event->keyboard.keycode == ALLEGRO_KEY_DOWN) {
-				TGUIWidget *w = getWidgetInDirection(focussedWidget, 0, 1);
-				if (w) {
-					setFocus(w);
+				else if (focussedWidget && event->keyboard.keycode == ALLEGRO_KEY_UP) {
+					TGUIWidget *w = getWidgetInDirection(focussedWidget, 0, -1);
+					if (w) {
+						setFocus(w);
+					}
 				}
-			}
-			else {
-				for (size_t i = 0; i < stack[0]->widgets.size(); i++) {
-					if (stack[0]->widgets[i]->getParent() == NULL) {
-						stack[0]->widgets[i]->chainKeyChar(event->keyboard.keycode, event->keyboard.unichar);
+				else if (focussedWidget && event->keyboard.keycode == ALLEGRO_KEY_DOWN) {
+					TGUIWidget *w = getWidgetInDirection(focussedWidget, 0, 1);
+					if (w) {
+						setFocus(w);
 					}
 				}
 			}
@@ -515,32 +515,39 @@ void handleEvent_pretransformed(void *allegro_event)
 			int stick = event->joystick.stick;
 			int axis = event->joystick.axis;
 			float value = event->joystick.pos;
-			// FIXME: pass these on if applicable
-			if (axis == 0) {
-				if (value < -0.5) {
-					TGUIWidget *w = getWidgetInDirection(focussedWidget, -1, 0);
-					if (w) {
-						setFocus(w);
-					}
-				}
-				else if (value > 0.5) {
-					TGUIWidget *w = getWidgetInDirection(focussedWidget, 1, 0);
-					if (w) {
-						setFocus(w);
-					}
+			bool used = false;
+			for (size_t i = 0; i < stack[0]->widgets.size(); i++) {
+				if (stack[0]->widgets[i]->getParent() == NULL) {
+					used = used || stack[0]->widgets[i]->chainJoyAxis(stick, axis, value);
 				}
 			}
-			else {
-				if (value < -0.5) {
-					TGUIWidget *w = getWidgetInDirection(focussedWidget, 0, -1);
-					if (w) {
-						setFocus(w);
+			if (!used) {
+				if (axis == 0) {
+					if (value < -0.5) {
+						TGUIWidget *w = getWidgetInDirection(focussedWidget, -1, 0);
+						if (w) {
+							setFocus(w);
+						}
+					}
+					else if (value > 0.5) {
+						TGUIWidget *w = getWidgetInDirection(focussedWidget, 1, 0);
+						if (w) {
+							setFocus(w);
+						}
 					}
 				}
-				else if (value > 0.5) {
-					TGUIWidget *w = getWidgetInDirection(focussedWidget, 0, 1);
-					if (w) {
-						setFocus(w);
+				else {
+					if (value < -0.5) {
+						TGUIWidget *w = getWidgetInDirection(focussedWidget, 0, -1);
+						if (w) {
+							setFocus(w);
+						}
+					}
+					else if (value > 0.5) {
+						TGUIWidget *w = getWidgetInDirection(focussedWidget, 0, 1);
+						if (w) {
+							setFocus(w);
+						}
 					}
 				}
 			}
@@ -772,16 +779,14 @@ void TGUIWidget::chainKeyUp(int keycode)
 	}
 }
 
-void TGUIWidget::chainKeyChar(int keycode, int unichar)
+bool TGUIWidget::chainKeyChar(int keycode, int unichar)
 {
 	// handle it within outself
-	keyChar(keycode, unichar);
+	bool used = keyChar(keycode, unichar);
 
 	// pass it on to the child
 	if (child) {
-		child->chainKeyChar(
-			keycode, unichar
-		);
+		used = used || child->chainKeyChar(keycode, unichar);
 	}
 }
 
@@ -811,16 +816,14 @@ void TGUIWidget::chainJoyButtonUp(int button)
 	}
 }
 
-void TGUIWidget::chainJoyAxis(int stick, int axis, float value)
+bool TGUIWidget::chainJoyAxis(int stick, int axis, float value)
 {
 	// handle it within outself
-	joyAxis(stick, axis, value);
+	bool used = joyAxis(stick, axis, value);
 
 	// pass it on to the child
 	if (child) {
-		child->chainJoyAxis(
-			stick, axis, value
-		);
+		used = used || child->chainJoyAxis(stick, axis, value);
 	}
 }
 
@@ -831,8 +834,6 @@ void TGUIWidget::chainDraw(void)
 	draw(abs_x, abs_y);
 
 	if (child) {
-		//determineAbsolutePosition(child, &abs_x, &abs_y);
-		//child->draw(abs_x, abs_y);
 		child->chainDraw();
 	}
 }

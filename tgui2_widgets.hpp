@@ -95,7 +95,7 @@ public:
 	void draw(int abs_x, int abs_y);
 	void keyDown(int keycode);
 	void keyUp(int keycode);
-	void keyChar(int keycode, int unichar);
+	bool keyChar(int keycode, int unichar);
 	void mouseUp(int rel_x, int rel_y, int abs_x, int abs_y, int mb);
 	void mouseDown(int rel_x, int rel_y, int abs_x, int abs_y, int mb);
 	void mouseDownAll(TGUIWidget *leftOut, int abs_x, int abs_y, int mb);
@@ -278,7 +278,7 @@ public:
 	void draw(int abs_x, int abs_y);
 	void keyDown(int keycode);
 	void keyUp(int keycode);
-	void keyChar(int keycode, int unichar);
+	bool keyChar(int keycode, int unichar);
 	void mouseDown(int rel_x, int rel_y, int abs_x, int abs_y, int mb);
 	void mouseMove(int rel_x, int rel_y, int abs_x, int abs_y);
 	void mouseUp(int rel_x, int rel_y, int abs_x, int abs_y, int mb);
@@ -353,7 +353,7 @@ public:
 
 	bool acceptsFocus(void);
 	void draw(int abs_x, int abs_y);
-	void keyChar(int keycode, int unichar);
+	bool keyChar(int keycode, int unichar);
 
 	void setValidator(bool (*validate)(const std::string str));
 	bool isValid(void);
