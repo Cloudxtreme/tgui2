@@ -126,10 +126,14 @@ public:
 	virtual bool gainingFocus(void) { return true; }
 	virtual void lostFocus(void) {}
 	virtual void gainedFocus(void) {}
-	void setFocusGroup(int focusGroup) { this->focusGroup = focusGroup; }
+	void setFocusGroup(int focusGroup, int numberInFocusGroup) {
+		this->focusGroup = focusGroup;
+		this->numberInFocusGroup = numberInFocusGroup;
+	}
 
 	TGUIWidget() {
 		parent = child = NULL;
+		focusGroup = 0;
 	}
 
 	virtual ~TGUIWidget() {}
@@ -162,6 +166,7 @@ protected:
 	TGUIWidget *child;
 
 	int focusGroup;
+	int numberInFocusGroup;
 };
 
 long currentTimeMillis();

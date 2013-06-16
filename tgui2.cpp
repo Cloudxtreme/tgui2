@@ -17,6 +17,8 @@ static void drawRect(tgui::TGUI *gui, int x1, int y1, int x2, int y2);
 
 namespace tgui {
 
+static TGUIWidget *getWidgetInDirection(TGUIWidget *widget, int xdir, int ydir);
+
 static ALLEGRO_DISPLAY *display;
 
 static std::vector<TGUI*> stack;
@@ -90,7 +92,7 @@ long currentTimeMillis()
 
 static void deleteGUI(TGUI *gui)
 {
-	for (unsigned int i = 0; i < gui->widgets.size(); i++) {
+	for (size_t i = 0; i < gui->widgets.size(); i++) {
 		delete gui->widgets[i];
 	}
 	delete gui;
@@ -130,7 +132,9 @@ void shutdown()
 
 void setFocus(TGUIWidget *widget)
 {
-	focussedWidget = widget;
+	if (widget == NULL || widget->acceptsFocus()) {
+		focussedWidget = widget;
+	}
 }
 
 TGUIWidget *getFocussedWidget(void)
@@ -150,7 +154,7 @@ void focusPrevious(void)
 	if (focussed == NULL)
 		return;
 
-	for (unsigned int i = 0; i < focusOrderList.size(); i++) {
+	for (size_t i = 0; i < focusOrderList.size(); i++) {
 		if (focusOrderList[i] == focussed) {
 			if (i > 0) {
 				setFocus(focusOrderList[i-1]);
@@ -169,7 +173,7 @@ void focusNext(void)
 	if (focussed == NULL)
 		return;
 
-	for (unsigned int i = 0; i < focusOrderList.size(); i++) {
+	for (size_t i = 0; i < focusOrderList.size(); i++) {
 		if (focusOrderList[i] == focussed) {
 			if (i < focusOrderList.size()-1) {
 				setFocus(focusOrderList[i+1]);
@@ -185,7 +189,7 @@ void translateAll(int x, int y)
 {
 	TGUI *gui = stack[0];
 
-	for (unsigned int i = 0; i < gui->widgets.size(); i++) {
+	for (size_t i = 0; i < gui->widgets.size(); i++) {
 		TGUIWidget *w = gui->widgets[i];
 		w->translate(x, y);
 	}
@@ -211,7 +215,7 @@ TGUIWidget *update()
 	}
 	lastUpdate = currTime;
 
-	for (unsigned int i = 0; i < stack[0]->widgets.size(); i++) {
+	for (size_t i = 0; i < stack[0]->widgets.size(); i++) {
 		TGUIWidget *widget = stack[0]->widgets[i];
 		TGUIWidget *retVal = widget->update();
 		if (retVal) {
@@ -234,7 +238,7 @@ std::vector<TGUIWidget *> updateAll(void)
 
 	lastUpdate = currTime;
 
-	for (unsigned int i = 0; i < stack[0]->widgets.size(); i++) {
+	for (size_t i = 0; i < stack[0]->widgets.size(); i++) {
 		TGUIWidget *widget = stack[0]->widgets[i];
 		TGUIWidget *retVal = widget->update();
 		if (retVal) {
@@ -249,7 +253,7 @@ void draw()
 {
 	int abs_x, abs_y;
 
-	for (unsigned int i = 0; i < preDrawWidgets.size(); i++) {
+	for (size_t i = 0; i < preDrawWidgets.size(); i++) {
 		determineAbsolutePosition(preDrawWidgets[i], &abs_x, &abs_y);
 		preDrawWidgets[i]->preDraw(abs_x, abs_y);
 	}
@@ -267,7 +271,7 @@ void draw()
 		al_draw_rectangle(x1, y1, x2, y2, al_map_rgb_f(f, f, 0), 1);
 	}
 	
-	for (unsigned int i = 0; i < postDrawWidgets.size(); i++) {
+	for (size_t i = 0; i < postDrawWidgets.size(); i++) {
 		determineAbsolutePosition(postDrawWidgets[i], &abs_x, &abs_y);
 		postDrawWidgets[i]->postDraw(abs_x, abs_y);
 	}
@@ -286,7 +290,7 @@ void push()
 
 	stack.insert(stack.begin(), gui);
 
-	focussedWidget = NULL;
+	setFocus(NULL);
 }
 
 bool pop()
@@ -297,7 +301,7 @@ bool pop()
 	deleteGUI(stack[0]);
 	stack.erase(stack.begin());
 
-	focussedWidget = NULL;
+	setFocus(NULL);
 
 	return true;
 }
@@ -397,7 +401,7 @@ void handleEvent_pretransformed(void *allegro_event)
 				rel_x = mx - abs_x;
 				rel_y = my - abs_y;
 				TGUIWidget *leftOut = w->chainMouseMove(rel_x, rel_y, mx, my, mz, mw);
-				for (unsigned int i = 0; i < stack[0]->widgets.size(); i++) {
+				for (size_t i = 0; i < stack[0]->widgets.size(); i++) {
 					TGUIWidget *w2 = stack[0]->widgets[i];
 					if (w2->getParent() == NULL) {
 						w2->mouseMoveAll(leftOut, mx, my);
@@ -405,7 +409,7 @@ void handleEvent_pretransformed(void *allegro_event)
 				}
 			}
 			else {
-				for (unsigned int i = 0; i < stack[0]->widgets.size(); i++) {
+				for (size_t i = 0; i < stack[0]->widgets.size(); i++) {
 					stack[0]->widgets[i]->mouseMove(-1, -1, mx, my);
 				}
 			}
@@ -426,10 +430,8 @@ void handleEvent_pretransformed(void *allegro_event)
 				rel_y = my - abs_y;
 				if (down) {
 					TGUIWidget *leftOut = w->chainMouseDown(rel_x, rel_y, mx, my, event->mouse.button);
-					if (leftOut) {
-						focussedWidget = leftOut;
-					}
-					for (unsigned int i = 0; i < stack[0]->widgets.size(); i++) {
+					setFocus(leftOut);
+					for (size_t i = 0; i < stack[0]->widgets.size(); i++) {
 						TGUIWidget *w2 = stack[0]->widgets[i];
 						if (w2->getParent() == NULL) {
 							w2->mouseDownAll(leftOut, mx, my, event->mouse.button);
@@ -438,7 +440,7 @@ void handleEvent_pretransformed(void *allegro_event)
 				}
 				else {
 					TGUIWidget *leftOut = w->chainMouseUp(rel_x, rel_y, mx, my, event->mouse.button);
-					for (unsigned int i = 0; i < stack[0]->widgets.size(); i++) {
+					for (size_t i = 0; i < stack[0]->widgets.size(); i++) {
 						TGUIWidget *w2 = stack[0]->widgets[i];
 						if (w2->getParent() == NULL) {
 							w2->mouseUpAll(leftOut, mx, my, event->mouse.button);
@@ -447,7 +449,7 @@ void handleEvent_pretransformed(void *allegro_event)
 				}
 			}
 			else {
-				for (unsigned int i = 0; i < stack[0]->widgets.size(); i++) {
+				for (size_t i = 0; i < stack[0]->widgets.size(); i++) {
 					if (down)
 						stack[0]->widgets[i]->mouseDown(-1, -1, mx, my, event->mouse.button);
 					else
@@ -458,7 +460,7 @@ void handleEvent_pretransformed(void *allegro_event)
 		}
 		case ALLEGRO_EVENT_KEY_DOWN: {
 			keyState[event->keyboard.keycode] = true;
-			for (unsigned int i = 0; i < stack[0]->widgets.size(); i++) {
+			for (size_t i = 0; i < stack[0]->widgets.size(); i++) {
 				if (stack[0]->widgets[i]->getParent() == NULL) {
 					stack[0]->widgets[i]->chainKeyDown(event->keyboard.keycode);
 				}
@@ -467,7 +469,7 @@ void handleEvent_pretransformed(void *allegro_event)
 		}
 		case ALLEGRO_EVENT_KEY_UP: {
 			keyState[event->keyboard.keycode] = false;
-			for (unsigned int i = 0; i < stack[0]->widgets.size(); i++) {
+			for (size_t i = 0; i < stack[0]->widgets.size(); i++) {
 				if (stack[0]->widgets[i]->getParent() == NULL) {
 					stack[0]->widgets[i]->chainKeyUp(event->keyboard.keycode);
 				}
@@ -475,9 +477,36 @@ void handleEvent_pretransformed(void *allegro_event)
 			break;
 		}
 		case ALLEGRO_EVENT_KEY_CHAR: {
-			for (unsigned int i = 0; i < stack[0]->widgets.size(); i++) {
-				if (stack[0]->widgets[i]->getParent() == NULL) {
-					stack[0]->widgets[i]->chainKeyChar(event->keyboard.keycode, event->keyboard.unichar);
+			// FIXME: only use arrows if widget is not trapping all input (figure out api for that)
+			if (focussedWidget && event->keyboard.keycode == ALLEGRO_KEY_LEFT) {
+				TGUIWidget *w = getWidgetInDirection(focussedWidget, -1, 0);
+				if (w) {
+					setFocus(w);
+				}
+			}
+			else if (focussedWidget && event->keyboard.keycode == ALLEGRO_KEY_RIGHT) {
+				TGUIWidget *w = getWidgetInDirection(focussedWidget, 1, 0);
+				if (w) {
+					setFocus(w);
+				}
+			}
+			else if (focussedWidget && event->keyboard.keycode == ALLEGRO_KEY_UP) {
+				TGUIWidget *w = getWidgetInDirection(focussedWidget, 0, -1);
+				if (w) {
+					setFocus(w);
+				}
+			}
+			else if (focussedWidget && event->keyboard.keycode == ALLEGRO_KEY_DOWN) {
+				TGUIWidget *w = getWidgetInDirection(focussedWidget, 0, 1);
+				if (w) {
+					setFocus(w);
+				}
+			}
+			else {
+				for (size_t i = 0; i < stack[0]->widgets.size(); i++) {
+					if (stack[0]->widgets[i]->getParent() == NULL) {
+						stack[0]->widgets[i]->chainKeyChar(event->keyboard.keycode, event->keyboard.unichar);
+					}
 				}
 			}
 			break;
@@ -759,7 +788,7 @@ void resize(TGUIWidget *parent)
 		parent->resize();
 	}
 	else {
-		for (unsigned int i = 0; i < stack[0]->widgets.size(); i++) {
+		for (size_t i = 0; i < stack[0]->widgets.size(); i++) {
 			if (parent == stack[0]->widgets[i]->getParent()) {
 				stack[0]->widgets[i]->resize();
 			}
@@ -866,7 +895,7 @@ void TGUIWidget::raise(void) {
 
 	// Do the same with all the children of this widget
 	std::vector<TGUIWidget *> toRaise = findChildren(this);
-	for (unsigned int i = 0; i < toRaise.size(); i++) {
+	for (size_t i = 0; i < toRaise.size(); i++) {
 		toRaise[i]->raise();
 	}
 }
@@ -881,7 +910,7 @@ void TGUIWidget::lower(void) {
 
 	// Do the same with all the children of this widget
 	std::vector<TGUIWidget *> toLower = findChildren(this);
-	for (unsigned int i = 0; i < toLower.size(); i++) {
+	for (size_t i = 0; i < toLower.size(); i++) {
 		toLower[i]->lower();
 	}
 }
@@ -915,7 +944,7 @@ void TGUIWidget::remove(void) {
 	}
 
 	if (this == focussedWidget) {
-		focussedWidget = NULL;
+		setFocus(NULL);
 	}
 }
 
@@ -1049,12 +1078,12 @@ void doModal(
 			al_use_transform(&backup);
 		
 			int abs_x, abs_y;
-			for (unsigned int i = 0; i < preDrawWidgets.size(); i++) {
+			for (size_t i = 0; i < preDrawWidgets.size(); i++) {
 				determineAbsolutePosition(preDrawWidgets[i], &abs_x, &abs_y);
 				preDrawWidgets[i]->preDraw(abs_x, abs_y);
 			}
 			::drawRect(stack[0], 0, 0, screenWidth, screenHeight);
-			for (unsigned int i = 0; i < postDrawWidgets.size(); i++) {
+			for (size_t i = 0; i < postDrawWidgets.size(); i++) {
 				determineAbsolutePosition(postDrawWidgets[i], &abs_x, &abs_y);
 				postDrawWidgets[i]->postDraw(abs_x, abs_y);
 			}
@@ -1075,11 +1104,96 @@ done:
 	al_destroy_timer(logic_timer);
 }
 
+static TGUIWidget *getWidgetInDirection(TGUIWidget *widget, int xdir, int ydir)
+{
+	int x1, y1, x2, y2;
+	int measuring_point;
+
+	if (xdir < 0) {
+		x1 = 0;
+		x2 = widget->getX();
+		y1 = widget->getY();
+		y2 = widget->getY() + widget->getHeight();
+		measuring_point = widget->getX();
+	}
+	else if (xdir > 0) {
+		x1 = widget->getX() + widget->getWidth();
+		y1 = widget->getY();
+		x2 = screenWidth;
+		y2 = widget->getY() + widget->getHeight();
+		measuring_point = widget->getX() + widget->getWidth();
+	}
+	else if (ydir < 0) {
+		x1 = widget->getX();
+		x2 = widget->getX() + widget->getWidth();
+		y1 = 0;
+		y2 = widget->getY();
+		measuring_point = widget->getY();
+	}
+	else { // ydir > 0
+		x1 = widget->getX();
+		x2 = widget->getX() + widget->getWidth();
+		y1 = widget->getY() + widget->getHeight();
+		y2 = screenHeight;
+		measuring_point = widget->getY() + widget->getHeight();
+	}
+
+	std::vector<TGUIWidget *> colliding;
+
+	for (size_t i = 0; i < stack[0]->widgets.size(); i++) {
+		TGUIWidget* w = stack[0]->widgets[i];
+		if (w == widget) {
+			continue;
+		}
+		int _x1, _y1, _x2, _y2;
+		_x1 = w->getX();
+		_x2 = w->getX() + w->getWidth();
+		_y1 = w->getY();
+		_y2 = w->getY() + w->getHeight();
+		if (x1 >= _x2 || y1 >= _y2 || x2 < _x1 || y2 < _y1) {
+			continue;
+		}
+		colliding.push_back(w);
+	}
+
+	// FIXME: certain conditions here: (If there isn't one, go to the next on in own group -- if none in group, go to next group. failing that, do nothing) 
+	if (colliding.size() == 0) {
+		return NULL;
+	}
+
+	int closest = INT_MAX;
+	TGUIWidget *closest_widget = NULL;
+
+	for (size_t i = 0; i < colliding.size(); i++) {
+		TGUIWidget *w = colliding[i];
+		int measuring_point2;
+		if (xdir < 0) {
+			measuring_point2 = w->getX() + w->getWidth();
+		}
+		else if (xdir > 0) {
+			measuring_point2 = w->getX();
+		}
+		else if (ydir < 0) {
+			measuring_point2 = w->getY() + w->getHeight();
+		}
+		else if (ydir > 0) {
+			measuring_point2 = w->getY();
+		}
+		int dist = abs(measuring_point-measuring_point2);
+		if (dist < closest) {
+			closest = dist;
+			closest_widget = w;
+		}
+	}
+
+	return closest_widget;
+}
+
 } // end namespace tgui
 
 static void drawRect(tgui::TGUI *gui, int x1, int y1, int x2, int y2)
 {
-	for (unsigned int i = 0; i < gui->widgets.size(); i++) {
+	for (size_t i = 0; i < gui->widgets.size(); i++) {
 		tgui::TGUIWidget* widget = gui->widgets[i];
 		if (widget->getParent() == NULL) {
 			widget->chainDraw();
