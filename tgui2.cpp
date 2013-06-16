@@ -22,6 +22,7 @@ static TGUIWidget *getWidgetInDirection(TGUIWidget *widget, int xdir, int ydir);
 static ALLEGRO_DISPLAY *display;
 
 static std::vector<TGUI*> stack;
+static std::vector<TGUIWidget *> stackFocus;
 static double lastUpdate;
 static TGUIWidget* currentParent = 0;
 
@@ -104,6 +105,7 @@ static void deletestack(void)
 		deleteGUI(stack[0]);
 		stack.erase(stack.begin());
 	}
+	stackFocus.clear();
 }
 
 void init(ALLEGRO_DISPLAY *d)
@@ -115,6 +117,7 @@ void init(ALLEGRO_DISPLAY *d)
 	TGUI *gui = new TGUI;
 
 	stack.push_back(gui);
+	stackFocus.push_back(NULL);
 
 	lastUpdate = currentTimeMillis();
 
@@ -287,6 +290,7 @@ void push()
 	TGUI *gui = new TGUI;
 
 	stack.insert(stack.begin(), gui);
+	stackFocus.insert(stackFocus.begin(), getFocussedWidget());
 
 	setFocus(NULL);
 }
@@ -299,7 +303,8 @@ bool pop()
 	deleteGUI(stack[0]);
 	stack.erase(stack.begin());
 
-	setFocus(NULL);
+	setFocus(stackFocus[0]);
+	stackFocus.erase(stackFocus.begin());
 
 	return true;
 }
