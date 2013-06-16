@@ -1301,7 +1301,7 @@ void drawFocusRectangle(int x, int y, int w, int h)
 {
 	float f = fmod(al_get_time(), 2);
 	if (f > 1) f = 2 - f;
-	al_draw_rectangle(x, y, x+w, y+h, al_map_rgb_f(f, f, 0), 1);
+	al_draw_rectangle(x+0.5f, y+0.5f, x+w-0.5f, y+h-0.5f, al_map_rgb_f(f, f, 0), 1);
 }
 
 } // end namespace tgui
