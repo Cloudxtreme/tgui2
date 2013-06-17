@@ -59,9 +59,11 @@ static int screenSizeOverrideX = -1;
 static int screenSizeOverrideY = -1;
 
 static bool joyButtonDown = false;
+static int joyButtonDownCount = 0;
 static int joyButtonDownNum;
 static double joyButtonDownTime;
 static bool joyAxisDown = false;
+static int joyAxisDownCount = 0;
 static int joyAxisDownXdir;
 static int joyAxisDownYdir;
 static double joyAxisDownTime;
@@ -266,7 +268,15 @@ TGUIWidget *update()
 	lastUpdate = currTime;
 
 	if (joyButtonDown) {
-		if (al_get_time()-0.33 > joyButtonDownTime) {
+		double delay;
+		if (joyButtonDownCount == 0) {
+			delay = 0.3;
+		}
+		else {
+			delay = 0.15;
+		}
+		if (al_get_time()-delay > joyButtonDownTime) {
+			joyButtonDownCount++;
 			joyButtonDownTime = al_get_time();
 			for (size_t i = 0; i < stack[0]->widgets.size(); i++) {
 				if (stack[0]->widgets[i]->getParent() == NULL) {
@@ -276,7 +286,15 @@ TGUIWidget *update()
 		}
 	}
 	if (joyAxisDown) {
-		if (al_get_time()-0.33 > joyAxisDownTime) {
+		double delay;
+		if (joyAxisDownCount == 0) {
+			delay = 0.3;
+		}
+		else {
+			delay = 0.15;
+		}
+		if (al_get_time()-delay > joyAxisDownTime) {
+			joyAxisDownCount++;
 			joyAxisDownTime = al_get_time();
 			int stick = 0; // FIXME
 			int axis = joyAxisDownXdir ? 0 : 1;
@@ -607,6 +625,7 @@ void handleEvent_pretransformed(void *allegro_event)
 					}
 				}
 				joyAxisDown = true;
+				joyAxisDownCount = 0;
 				joyAxisDownXdir = xdir;
 				joyAxisDownYdir = ydir;
 				joyAxisDownTime = al_get_time();
@@ -626,6 +645,7 @@ void handleEvent_pretransformed(void *allegro_event)
 		case ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN: {
 			if (!joyButtonDown) {
 				joyButtonDown = true;
+				joyButtonDownCount = 0;
 				joyButtonDownNum = event->joystick.button;
 				joyButtonDownTime = al_get_time();
 			}
