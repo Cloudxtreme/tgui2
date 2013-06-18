@@ -45,8 +45,8 @@ public:
 		}
 	}
 
-	TGUI_Extended_Widget(void);
-	virtual ~TGUI_Extended_Widget(void) {}
+	TGUI_Extended_Widget();
+	virtual ~TGUI_Extended_Widget() {}
 
 protected:
 	bool resizable;
@@ -54,19 +54,35 @@ protected:
 	bool tampering;
 };
 
+class TGUI_Checkbox : public TGUI_Extended_Widget
+{
+public:
+	void draw(int abs_x, int abs_y);
+	void mouseDown(int rel_x, int rel_y, int abs_x, int abs_y, int mb);
+
+	bool getChecked();
+	void setChecked(bool checked);
+
+	TGUI_Checkbox(int x, int y, int w, int h, bool checked);
+	virtual ~TGUI_Checkbox();
+
+protected:
+	bool checked;
+};
+
 class TGUI_Icon : public TGUI_Extended_Widget
 {
 public:
-	bool acceptsFocus(void);
+	bool acceptsFocus();
 	void draw(int abs_x, int abs_y);
 	void mouseDown(int rel_x, int rel_y, int abs_x, int abs_y, int mb);
-	tgui::TGUIWidget *update(void);
+	tgui::TGUIWidget *update();
 
 	void setClearColor(ALLEGRO_COLOR c);
 
 	// image gets destroyed in destructor
 	TGUI_Icon(ALLEGRO_BITMAP *image, int x, int y, int flags);
-	virtual ~TGUI_Icon(void);
+	virtual ~TGUI_Icon();
 
 protected:
 	int flags;
@@ -83,7 +99,7 @@ public:
 	// image gets destroyed in destructor
 	TGUI_IconButton(ALLEGRO_BITMAP *image, int x, int y, 
 		int width, int height, int ico_ofs_x, int ico_ofs_y, int flags);
-	virtual ~TGUI_IconButton(void);
+	virtual ~TGUI_IconButton();
 
 protected:
 	int ico_ofs_x, ico_ofs_y;
@@ -101,15 +117,15 @@ public:
 	void mouseDownAll(TGUIWidget *leftOut, int abs_x, int abs_y, int mb);
 	void mouseMoveAll(tgui::TGUIWidget *leftOut, int abs_x, int abs_y);
 	void mouseMove(int rel_x, int rel_y, int abs_x, int abs_y);
-	tgui::TGUIWidget *update(void);
+	tgui::TGUIWidget *update();
 
 	void set_resizable(int split, bool value);
 	int get_size(int index);
 	void set_size(int index, int size);
 	void set_widget(int index, TGUIWidget *widget);
 	void setClearColor(ALLEGRO_COLOR c);
-	void layout(void);
-	std::vector<tgui::TGUIWidget *> &getWidgets(void);
+	void layout();
+	std::vector<tgui::TGUIWidget *> &getWidgets();
 	void setDrawLines(bool drawLines);
 	void setWidth(int w);
 	void setHeight(int h);
@@ -123,7 +139,7 @@ public:
 		std::vector<tgui::TGUIWidget *> widgets
 	);
 
-	virtual ~TGUI_Splitter(void);
+	virtual ~TGUI_Splitter();
 
 protected:
 	class TGUI_DummyWidget : public TGUI_Extended_Widget
@@ -133,7 +149,7 @@ protected:
 			this->x = x;
 			this->y = y;
 		}
-		virtual ~TGUI_DummyWidget(void) {}
+		virtual ~TGUI_DummyWidget() {}
 	};
 
 	TGUI_Direction direction;
@@ -159,18 +175,18 @@ class TGUI_TextMenuItem : public TGUI_Extended_Widget
 public:
 	static const int HEIGHT = 16;
 
-	virtual void close(void) {};
+	virtual void close() {};
 	void setMenuBar(TGUI_MenuBar *menuBar);
-	int getShortcutKeycode(void);
+	int getShortcutKeycode();
 
 	virtual void draw(int abs_x, int abs_y);
-	virtual tgui::TGUIWidget *update(void);
+	virtual tgui::TGUIWidget *update();
 	virtual void mouseDown(int rel_x, int rel_y, int abs_x, int abs_y, int mb);
 	virtual void mouseMove(int rel_x, int rel_y, int abs_x, int abs_y);
 	virtual void mouseMoveAll(tgui::TGUIWidget *leftOut, int abs_x, int abs_y);
 
 	TGUI_TextMenuItem(std::string name, int shortcut_keycode);
-	virtual ~TGUI_TextMenuItem(void) {}
+	virtual ~TGUI_TextMenuItem() {}
 
 protected:
 	std::string name;
@@ -184,13 +200,13 @@ class TGUI_CheckMenuItem : public TGUI_TextMenuItem
 {
 public:
 	void draw(int abs_x, int abs_y);
-	tgui::TGUIWidget *update(void);
+	tgui::TGUIWidget *update();
 
-	bool isChecked(void);
+	bool isChecked();
 	void setChecked(bool checked);
 	
 	TGUI_CheckMenuItem(std::string name, int shortcut_keycode, bool checked);
-	virtual ~TGUI_CheckMenuItem(void) {}
+	virtual ~TGUI_CheckMenuItem() {}
 
 protected:
 	bool checked;
@@ -204,13 +220,13 @@ class TGUI_RadioMenuItem : public TGUI_TextMenuItem
 {
 public:
 	void draw(int abs_x, int abs_y);
-	tgui::TGUIWidget *update(void);
+	tgui::TGUIWidget *update();
 
-	bool isSelected(void);
-	void setSelected(void);
+	bool isSelected();
+	void setSelected();
 
 	TGUI_RadioMenuItem(std::string name, int shortcut_keycode, TGUI_RadioGroup *group, int id);
-	virtual ~TGUI_RadioMenuItem(void) {}
+	virtual ~TGUI_RadioMenuItem() {}
 
 protected:
 	TGUI_RadioGroup *group;
@@ -220,19 +236,19 @@ protected:
 class TGUI_SubMenuItem : public TGUI_TextMenuItem
 {
 public:
-	void close(void);
+	void close();
 
 	void draw(int abs_x, int abs_y);
 	void mouseDown(int rel_x, int rel_y, int abs_x, int abs_y, int mb);
 	void mouseMove(int rel_x, int rel_y, int abs_x, int abs_y);
 
-	bool isOpen(void);
-	TGUI_Splitter *getSubMenu(void);
+	bool isOpen();
+	TGUI_Splitter *getSubMenu();
 	void setSubMenu(TGUI_Splitter *sub);
 	void setParentSplitter(TGUI_Splitter *splitter);
 
 	TGUI_SubMenuItem(std::string name, TGUI_Splitter *sub_menu);
-	virtual ~TGUI_SubMenuItem(void) {}
+	virtual ~TGUI_SubMenuItem() {}
 
 protected:
 	bool is_open;
@@ -246,12 +262,12 @@ public:
 	static const int PADDING = 10;
 	static const int HEIGHT = 16;
 	
-	void close(void);
+	void close();
 
 	void draw(int abs_x, int abs_y);
 	void mouseDown(int rel_x, int rel_y, int abs_x, int abs_y, int mb);
 	void keyDown(int keycode);
-	tgui::TGUIWidget *update(void);
+	tgui::TGUIWidget *update();
 
 	TGUI_MenuBar(
 		int x, int y, int w, int h,
@@ -283,7 +299,7 @@ public:
 	void mouseMove(int rel_x, int rel_y, int abs_x, int abs_y);
 	void mouseUp(int rel_x, int rel_y, int abs_x, int abs_y, int mb);
 	void mouseMoveAll(TGUIWidget *leftOut, int abs_x, int abs_y);
-	void chainDraw(void);
+	void chainDraw();
 	TGUIWidget *chainMouseDown(int rel_x, int rel_y, int abs_x, int abs_y, int mb);
 
 	void get_values(float *ox, float *oy);
@@ -321,7 +337,7 @@ public:
 	virtual void mouseMoveAll(tgui::TGUIWidget *leftOut, int abs_x, int abs_y);
 	virtual void mouseUp(int rel_x, int rel_y, int abs_x, int abs_y, int mb);
 
-	float getPosition(void);
+	float getPosition();
 	void setPosition(float pos);
 	void setCallback(void (*callback)(float pos));
 
@@ -351,20 +367,20 @@ class TGUI_TextField : public TGUI_Extended_Widget
 public:
 	static const int PADDING = 3;
 
-	bool acceptsFocus(void);
+	bool acceptsFocus();
 	void draw(int abs_x, int abs_y);
 	bool keyChar(int keycode, int unichar);
 
 	void setValidator(bool (*validate)(const std::string str));
-	bool isValid(void);
-	std::string getText(void);
+	bool isValid();
+	std::string getText();
 	void setText(std::string s);
 
 	TGUI_TextField(std::string startStr, int x, int y, int width);
-	virtual ~TGUI_TextField(void);
+	virtual ~TGUI_TextField();
 
 protected:
-	void findOffset(void);
+	void findOffset();
 
 	std::string str;
 	int cursorPos;
@@ -384,10 +400,10 @@ public:
 	void mouseMove(int rel_x, int rel_y, int abs_x, int abs_y);
 	void draw(int abs_x, int abs_y);
 
-	int barHeight(void);
+	int barHeight();
 
 	TGUI_Frame(std::string title, int x, int y, int width, int height);
-	virtual ~TGUI_Frame(void);
+	virtual ~TGUI_Frame();
 
 protected:
 
@@ -405,7 +421,7 @@ public:
 	void setFont(ALLEGRO_FONT *font);
 
 	TGUI_Label(std::string text, ALLEGRO_COLOR color, int x, int y, int flags);
-	virtual ~TGUI_Label(void);
+	virtual ~TGUI_Label();
 
 protected:
 
@@ -424,7 +440,7 @@ public:
 	void setLabels(const std::vector<std::string> &labels);
 	void mouseDown(int rel_x, int rel_y, int abs_x, int abs_y, int mb);
 
-	int getSelected(void) { return selected; }
+	int getSelected() { return selected; }
 	void setSelected(int selected) { this->selected = selected; }
 
 	TGUI_List(int x, int y, int width);

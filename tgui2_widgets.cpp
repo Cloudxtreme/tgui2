@@ -34,6 +34,47 @@ TGUI_Extended_Widget::TGUI_Extended_Widget(void) :
 }
 
 // --
+	
+void TGUI_Checkbox::draw(int abs_x, int abs_y)
+{
+	al_draw_filled_rectangle(abs_x, abs_y, abs_x+width, abs_y+height, back);
+	al_draw_rectangle(abs_x+0.5f, abs_y+0.5f, abs_x+width-0.5f, abs_y+height-0.5f, fore, 1);
+	if (checked) {
+		al_draw_line(abs_x+0.5f, abs_y+0.5f, abs_x+width-0.5f, abs_y+height-0.5f, fore, 1);
+		al_draw_line(abs_x+0.5f, abs_y+height-0.5f, abs_x+width-0.5f, abs_y+0.5f, fore, 1);
+	}
+}
+
+void TGUI_Checkbox::mouseDown(int rel_x, int rel_y, int abs_x, int abs_y, int mb)
+{
+	if (rel_x >= 0) {
+		checked = !checked;
+	}
+}
+
+bool TGUI_Checkbox::getChecked()
+{
+	return checked;
+}
+
+void TGUI_Checkbox::setChecked(bool checked)
+{
+	this->checked = checked;
+}
+
+TGUI_Checkbox::TGUI_Checkbox(int x, int y, int w, int h, bool checked)
+{
+	this->x = x;
+	this->y = y;
+	this->width = w;
+	this->height = h;
+	this->checked = checked;
+}
+
+TGUI_Checkbox::~TGUI_Checkbox()
+{
+}
+
 
 bool TGUI_Icon::acceptsFocus(void)
 {
