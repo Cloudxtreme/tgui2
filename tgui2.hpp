@@ -42,6 +42,7 @@ public:
 
 	TGUIWidget *getChild() { return child; }
 	void setChild(TGUIWidget *c) { child = c; }
+	virtual bool getAbsoluteChildPosition(TGUIWidget *child, int *x, int *y) { return false; }
 
 	virtual void draw(int abs_x, int abs_y) {}
 	// -- only called if registered
@@ -49,7 +50,7 @@ public:
 	virtual void postDraw(int abs_x, int abs_y) {}
 	// --
 
-	virtual TGUIWidget *update(void) {
+	virtual TGUIWidget *update() {
 		TGUIWidget *w;
 		if (child) {
 			w = child->update();
@@ -57,7 +58,7 @@ public:
 		}
 		return NULL;
 	}
-	virtual void resize(void) {
+	virtual void resize() {
 		resize_self();
 		resize_child();
 	}
@@ -67,8 +68,8 @@ public:
 		}
 	}
 
-	virtual void raise(void);
-	virtual void lower(void);
+	virtual void raise();
+	virtual void lower();
 
 	// give relative and absolute coordinates. rel_x/y can be -1 if not
 	// over widget
@@ -115,7 +116,7 @@ public:
 		}
 	}
 
-	virtual void remove(void);
+	virtual void remove();
 	
 	virtual bool acceptsFocus() { return false; }
 
@@ -131,13 +132,15 @@ public:
 	virtual void chainJoyButtonUp(int button);
 	virtual void chainJoyAxis(int stick, int axis, float value);
 	virtual bool chainJoyAxisRepeat(int stick, int axis, float value);
-	virtual void chainDraw(void);
+	virtual void chainDraw();
 
 	/* losing/gaining: return true to lose/gain, false to retain focus */
-	virtual bool losingFocus(void) { return true; }
-	virtual bool gainingFocus(void) { return true; }
-	virtual void lostFocus(void) {}
-	virtual void gainedFocus(void) {}
+	virtual bool losingFocus() { return true; }
+	virtual bool gainingFocus() { return true; }
+	virtual void lostFocus() {}
+	virtual void gainedFocus() {}
+
+	virtual void addCollidingChildrenToVector(std::vector<tgui::TGUIWidget *> &v, tgui::TGUIWidget *exception, int x1, int y1, int x2, int y2) {}
 
 	void setFocusGroup(int focusGroup, int numberInFocusGroup) {
 		this->focusGroup = focusGroup;
@@ -158,7 +161,7 @@ public:
 
 protected:
 
-	void resize_self(void) {
+	void resize_self() {
 		if (parent) {
 			width = parent->getWidth();
 			height = parent->getHeight();
@@ -171,7 +174,7 @@ protected:
 		}
 	}
 
-	void resize_child(void) {
+	void resize_child() {
 		if (child)
 			child->resize();
 	}
@@ -204,7 +207,7 @@ void drawRect(int x1, int y1, int x2, int y2);
 void push();
 bool pop();
 void setNewWidgetParent(TGUIWidget *parent);
-TGUIWidget *getNewWidgetParent(void);
+TGUIWidget *getNewWidgetParent();
 void centerWidget(TGUIWidget *widget, int x, int y);
 bool widgetIsChildOf(TGUIWidget *widget, TGUIWidget *parent);
 void setScale(float x_scale, float y_scale);
@@ -215,16 +218,16 @@ void bufferToScreenPos(int *x, int *y, int bw, int bh);
 void handleEvent_pretransformed(void *allegro_event);
 void handleEvent(void *allegro_event);
 TGUIWidget *getTopLevelParent(TGUIWidget *widget);
-ALLEGRO_FONT *getFont(void);
+ALLEGRO_FONT *getFont();
 void setFont(ALLEGRO_FONT *font);
 void determineAbsolutePosition(TGUIWidget *widget, int *x, int *y);
 TGUIWidget *determineTopLevelOwner(int x, int y);
 bool pointOnWidget(TGUIWidget *widget, int x, int y);
 void resize(TGUIWidget *parent);
-void clearClip(void);
+void clearClip();
 void setClippedClip(int x, int y, int width, int height);
 void setClip(int x, int y, int width, int height);
-bool isClipSet(void);
+bool isClipSet();
 void getClip(int *x, int *y, int *w, int *h);
 void raiseWidget(TGUIWidget *widget);
 void lowerWidget(TGUIWidget *widget);
@@ -233,10 +236,10 @@ std::vector<TGUIWidget *> removeChildren(TGUIWidget *widget);
 void addPreDrawWidget(TGUIWidget *widget);
 void addPostDrawWidget(TGUIWidget *widget);
 void pushEvent(TGUIEventType type, void *data);
-ALLEGRO_EVENT_SOURCE *getEventSource(void);
+ALLEGRO_EVENT_SOURCE *getEventSource();
 bool isKeyDown(int keycode);
 void setScreenSize(int w, int h);
-ALLEGRO_DISPLAY *getDisplay(void);
+ALLEGRO_DISPLAY *getDisplay();
 // Callback should return true to cancel dialog, it will get each widget
 // returned from tgui::update
 void doModal(
@@ -247,6 +250,7 @@ void doModal(
 	void (*resize_callback)()
 );
 void drawFocusRectangle(int x, int y, int w, int h);
+bool checkBoxCollision(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4);
 
 } // End namespace tgui
 

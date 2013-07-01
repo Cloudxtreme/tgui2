@@ -68,8 +68,7 @@ static int joyAxisDownXdir;
 static int joyAxisDownYdir;
 static double joyAxisDownTime;
 
-inline bool checkBoxCollision(int x1, int y1, int x2, int y2, int x3, int y3,
-	int x4, int y4)
+bool checkBoxCollision(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4)
 {
 	if ((y2 < y3) || (y1 > y4) || (x2 < x3) || (x1 > x4))
 		return false;
@@ -81,7 +80,7 @@ void setFont(ALLEGRO_FONT *f)
 	font = f;
 }
 
-ALLEGRO_FONT *getFont(void)
+ALLEGRO_FONT *getFont()
 {
 	return font;
 }
@@ -109,7 +108,7 @@ static void deleteGUI(TGUI *gui)
 	delete gui;
 }
 	
-static void deletestack(void)
+static void deletestack()
 {
 	while (stack.size() > 0) {
 		deleteGUI(stack[0]);
@@ -150,7 +149,7 @@ void setFocus(TGUIWidget *widget)
 	}
 }
 
-TGUIWidget *getFocussedWidget(void)
+TGUIWidget *getFocussedWidget()
 {
 	return focussedWidget;
 }
@@ -160,7 +159,7 @@ void setFocusOrder(std::vector<TGUIWidget *> list)
 	focusOrderList = list;
 }
 
-void focusPrevious(void)
+void focusPrevious()
 {
 	TGUIWidget *focussed = getFocussedWidget();
 
@@ -179,7 +178,7 @@ void focusPrevious(void)
 	}
 }
 
-void focusNext(void)
+void focusNext()
 {
 	TGUIWidget *focussed = getFocussedWidget();
 
@@ -226,7 +225,7 @@ static void handleJoyAxisRepeat(int stick, int axis, float value)
 			used = used || stack[0]->widgets[i]->chainJoyAxisRepeat(stick, axis, value);
 		}
 	}
-	if (!used) {
+	if (!used && focussedWidget) {
 		if (axis == 0) {
 			if (value <= -0.5f) {
 				TGUIWidget *w = getWidgetInDirection(focussedWidget, -1, 0);
@@ -314,7 +313,7 @@ TGUIWidget *update()
 	return NULL;
 }
 
-std::vector<TGUIWidget *> updateAll(void)
+std::vector<TGUIWidget *> updateAll()
 {
 	std::vector<TGUIWidget *> retVect;
 	long currTime = currentTimeMillis();
@@ -350,8 +349,8 @@ void draw()
 
 	// Draw focus
 	if (focussedWidget && focussedWidget->getDrawFocus()) {
-		int x = focussedWidget->getX();
-		int y = focussedWidget->getY();
+		int x, y;
+		determineAbsolutePosition(focussedWidget, &x, &y);
 		int w = focussedWidget->getWidth();
 		int h = focussedWidget->getHeight();
 		drawFocusRectangle(x, y, w, h);
@@ -399,7 +398,7 @@ void setNewWidgetParent(TGUIWidget* parent)
 	currentParent = parent;
 }
 
-TGUIWidget *getNewWidgetParent(void)
+TGUIWidget *getNewWidgetParent()
 {
 	return currentParent;
 }
@@ -732,16 +731,17 @@ TGUIWidget *determineTopLevelOwner(int x, int y)
 
 void determineAbsolutePosition(TGUIWidget *widget, int *x, int *y)
 {
-	int wx = widget->getX();
-	int wy = widget->getY();
-	TGUIWidget *parent = widget->getParent();
-	while (parent) {
-		wx += parent->getX();
-		wy += parent->getY();
-		parent = parent->getParent();
+	// Check each widget in case widget is a child of one
+	for (size_t i = 0; i < stack[0]->widgets.size(); i++) {
+		if (stack[0]->widgets[i] == widget) {
+			continue;
+		}
+		if (stack[0]->widgets[i]->getAbsoluteChildPosition(widget, x, y)) {
+			return;
+		}
 	}
-	*x = wx;
-	*y = wy;
+	*x = widget->getX();
+	*y = widget->getY();
 }
 
 bool pointOnWidget(TGUIWidget *widget, int x, int y)
@@ -960,7 +960,7 @@ bool TGUIWidget::chainJoyAxisRepeat(int stick, int axis, float value)
 	return used;
 }
 
-void TGUIWidget::chainDraw(void)
+void TGUIWidget::chainDraw()
 {
 	int abs_x, abs_y;
 	determineAbsolutePosition(this, &abs_x, &abs_y);
@@ -1020,7 +1020,7 @@ void resize(TGUIWidget *parent)
 	}
 }
 
-bool isClipSet(void)
+bool isClipSet()
 {
 	return clipSet;
 }
@@ -1075,7 +1075,7 @@ void setClippedClip(int x, int y, int width, int height)
 	setClip(x, y, width, height);
 }
 
-void clearClip(void)
+void clearClip()
 {
 	clipSet = false;
 	al_set_clipping_rectangle(0, 0, screenWidth, screenHeight);
@@ -1109,7 +1109,7 @@ std::vector<TGUIWidget *> findChildren(TGUIWidget *widget) {
 	return found;
 }
 
-void TGUIWidget::raise(void) {
+void TGUIWidget::raise() {
 	// Remove and place parent at top
 	std::vector<TGUIWidget *>::iterator it = std::find(stack[0]->widgets.begin(), stack[0]->widgets.end(), this);
 	if (it != stack[0]->widgets.end()) {
@@ -1124,7 +1124,7 @@ void TGUIWidget::raise(void) {
 	}
 }
 
-void TGUIWidget::lower(void) {
+void TGUIWidget::lower() {
 	// Remove and place parent at top
 	std::vector<TGUIWidget *>::iterator it = std::find(stack[0]->widgets.begin(), stack[0]->widgets.end(), this);
 	if (it != stack[0]->widgets.end()) {
@@ -1149,7 +1149,7 @@ void addPostDrawWidget(TGUIWidget *widget)
 	postDrawWidgets.push_back(widget);
 }
 
-void TGUIWidget::remove(void) {
+void TGUIWidget::remove() {
 	std::vector<TGUIWidget *>::iterator it = std::find(stack[0]->widgets.begin(), stack[0]->widgets.end(), this);
 	if (it != stack[0]->widgets.end()) {
 		stack[0]->widgets.erase(it);
@@ -1189,7 +1189,7 @@ void pushEvent(TGUIEventType type, void *data) {
 	al_emit_user_event(es, (ALLEGRO_EVENT *)event, destroyEvent);
 };
 
-ALLEGRO_EVENT_SOURCE *getEventSource(void) {
+ALLEGRO_EVENT_SOURCE *getEventSource() {
 	return (ALLEGRO_EVENT_SOURCE *)&eventSource;
 }
 
@@ -1197,7 +1197,7 @@ bool isKeyDown(int keycode) {
 	return keyState[keycode];
 }
 
-ALLEGRO_DISPLAY *getDisplay(void)
+ALLEGRO_DISPLAY *getDisplay()
 {
 	return display;
 }
@@ -1310,8 +1310,8 @@ void doModal(
 
 			// Draw focus
 			if (focussedWidget && focussedWidget->getDrawFocus()) {
-				int x = focussedWidget->getX();
-				int y = focussedWidget->getY();
+				int x, y;
+				determineAbsolutePosition(focussedWidget, &x, &y);
 				int w = focussedWidget->getWidth();
 				int h = focussedWidget->getHeight();
 				drawFocusRectangle(x, y, w, h);
@@ -1343,47 +1343,53 @@ static TGUIWidget *getWidgetInDirection(TGUIWidget *widget, int xdir, int ydir)
 	int x1, y1, x2, y2;
 	int measuring_point;
 
+	int wx1, wy1;
+	determineAbsolutePosition(widget, &wx1, &wy1);
+
 	if (xdir < 0) {
 		x1 = 0;
-		x2 = widget->getX();
-		y1 = widget->getY();
-		y2 = widget->getY() + widget->getHeight();
-		measuring_point = widget->getX();
+		x2 = wx1;
+		y1 = wy1;
+		y2 = wy1 + widget->getHeight();
+		measuring_point = wx1;
 	}
 	else if (xdir > 0) {
-		x1 = widget->getX() + widget->getWidth();
-		y1 = widget->getY();
+		x1 = wx1 + widget->getWidth();
+		y1 = wy1;
 		x2 = screenWidth;
-		y2 = widget->getY() + widget->getHeight();
-		measuring_point = widget->getX() + widget->getWidth();
+		y2 = wy1 + widget->getHeight();
+		measuring_point = wx1 + widget->getWidth();
 	}
 	else if (ydir < 0) {
-		x1 = widget->getX();
-		x2 = widget->getX() + widget->getWidth();
+		x1 = wx1;
+		x2 = wx1 + widget->getWidth();
 		y1 = 0;
-		y2 = widget->getY();
-		measuring_point = widget->getY();
+		y2 = wy1;
+		measuring_point = wy1;
 	}
 	else { // ydir > 0
-		x1 = widget->getX();
-		x2 = widget->getX() + widget->getWidth();
-		y1 = widget->getY() + widget->getHeight();
+		x1 = wx1;
+		x2 = wx1 + widget->getWidth();
+		y1 = wy1 + widget->getHeight();
 		y2 = screenHeight;
-		measuring_point = widget->getY() + widget->getHeight();
+		measuring_point = wy1 + widget->getHeight();
 	}
 
 	std::vector<TGUIWidget *> colliding;
 
 	for (size_t i = 0; i < stack[0]->widgets.size(); i++) {
 		TGUIWidget* w = stack[0]->widgets[i];
+		w->addCollidingChildrenToVector(colliding, widget, x1, y1, x2, y2);
 		if (w == widget || !w->acceptsFocus()) {
 			continue;
 		}
 		int _x1, _y1, _x2, _y2;
-		_x1 = w->getX();
-		_x2 = w->getX() + w->getWidth();
-		_y1 = w->getY();
-		_y2 = w->getY() + w->getHeight();
+		int wx2, wy2;
+		determineAbsolutePosition(w, &wx2, &wy2);
+		_x1 = wx2;
+		_x2 = wx2 + w->getWidth();
+		_y1 = wy2;
+		_y2 = wy2 + w->getHeight();
 		if (checkBoxCollision(x1, y1, x2, y2, _x1, _y1, _x2, _y2)) {
 			colliding.push_back(w);
 		}
@@ -1399,18 +1405,20 @@ static TGUIWidget *getWidgetInDirection(TGUIWidget *widget, int xdir, int ydir)
 
 	for (size_t i = 0; i < colliding.size(); i++) {
 		TGUIWidget *w = colliding[i];
+		int wx2, wy2;
+		determineAbsolutePosition(w, &wx2, &wy2);
 		int measuring_point2;
 		if (xdir < 0) {
-			measuring_point2 = w->getX() + w->getWidth();
+			measuring_point2 = wx2 + w->getWidth();
 		}
 		else if (xdir > 0) {
-			measuring_point2 = w->getX();
+			measuring_point2 = wx2;
 		}
 		else if (ydir < 0) {
-			measuring_point2 = w->getY() + w->getHeight();
+			measuring_point2 = wy2 + w->getHeight();
 		}
 		else if (ydir > 0) {
-			measuring_point2 = w->getY();
+			measuring_point2 = wy2;
 		}
 		int dist = abs(measuring_point-measuring_point2);
 		if (dist < closest) {
@@ -1426,7 +1434,14 @@ void drawFocusRectangle(int x, int y, int w, int h)
 {
 	float f = fmod(al_get_time(), 2);
 	if (f > 1) f = 2 - f;
-	al_draw_rectangle(x+0.5f, y+0.5f, x+w-0.5f, y+h-0.5f, al_map_rgb_f(f, f, 0), 1);
+	al_draw_rectangle(
+		x+0.5f,
+		y+0.5f,
+		x+w-0.5f,
+		y+h-0.5f,
+		al_map_rgb_f(f, f, 0),
+		1
+	);
 }
 
 // Must be called when al_flush_event_queue is called in the game

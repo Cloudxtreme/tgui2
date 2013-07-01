@@ -77,6 +77,8 @@ public:
 	void draw(int abs_x, int abs_y);
 	void mouseDown(int rel_x, int rel_y, int abs_x, int abs_y, int mb);
 	tgui::TGUIWidget *update();
+	void keyDown(int keycode);
+	void joyButtonDown(int button);
 
 	void setClearColor(ALLEGRO_COLOR c);
 
@@ -118,6 +120,8 @@ public:
 	void mouseMoveAll(tgui::TGUIWidget *leftOut, int abs_x, int abs_y);
 	void mouseMove(int rel_x, int rel_y, int abs_x, int abs_y);
 	tgui::TGUIWidget *update();
+	bool getAbsoluteChildPosition(tgui::TGUIWidget *child, int *x, int *y);
+	void addCollidingChildrenToVector(std::vector<tgui::TGUIWidget *> &v, tgui::TGUIWidget *exception, int x1, int y1, int x2, int y2);
 
 	void set_resizable(int split, bool value);
 	int get_size(int index);
@@ -354,6 +358,7 @@ protected:
 class TGUI_Button : public TGUI_Icon
 {
 public:
+	bool acceptsFocus();
 	void draw(int abs_x, int abs_y);
 
 	TGUI_Button(std::string text, int x, int y, int w, int h);
@@ -386,7 +391,6 @@ protected:
 	int cursorPos;
 	int offset;
 	bool (*validate)(const std::string str);
-	bool validates;
 };
 
 // only need modal frame right now so this one won't be draggable (yet)

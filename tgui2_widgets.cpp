@@ -25,7 +25,7 @@ static void setDefaultColors()
 	tguiWidgetsSetColors(al_color_name("yellow"), al_color_name("purple"));
 }
 
-TGUI_Extended_Widget::TGUI_Extended_Widget(void) :
+TGUI_Extended_Widget::TGUI_Extended_Widget() :
 	resizable(false)
 {
 	x = 0;
@@ -75,8 +75,23 @@ TGUI_Checkbox::~TGUI_Checkbox()
 {
 }
 
+// --
 
-bool TGUI_Icon::acceptsFocus(void)
+void TGUI_Icon::keyDown(int keycode)
+{
+	if (this == tgui::getFocussedWidget() && keycode == ALLEGRO_KEY_ENTER) {
+		clicked = true;
+	}
+}
+
+void TGUI_Icon::joyButtonDown(int button)
+{
+	if (this == tgui::getFocussedWidget()) {
+		clicked = true;
+	}
+}
+
+bool TGUI_Icon::acceptsFocus()
 {
 	return true;
 }
@@ -100,7 +115,7 @@ void TGUI_Icon::mouseDown(int rel_x, int rel_y, int abs_x, int abs_y, int mb)
 		clicked = true;
 }
 
-tgui::TGUIWidget *TGUI_Icon::update(void)
+tgui::TGUIWidget *TGUI_Icon::update()
 {
 	if (clicked) {
 		clicked = false;
@@ -129,7 +144,7 @@ TGUI_Icon::TGUI_Icon(ALLEGRO_BITMAP *image, int x, int y, int flags) :
 	clear_color = back;
 }
 
-TGUI_Icon::~TGUI_Icon(void)
+TGUI_Icon::~TGUI_Icon()
 {
 	if (image)
 		al_destroy_bitmap(image);
@@ -160,11 +175,70 @@ TGUI_IconButton::TGUI_IconButton(ALLEGRO_BITMAP *image, int x, int y,
 	this->height = height;
 }
 
-TGUI_IconButton::~TGUI_IconButton(void)
+TGUI_IconButton::~TGUI_IconButton()
 {
 }
 
 // --
+
+void TGUI_Splitter::addCollidingChildrenToVector(std::vector<tgui::TGUIWidget *> &v, tgui::TGUIWidget *exception, int x1, int y1, int x2, int y2)
+{
+	for (size_t i = 0; i < widgets.size(); i++) {
+		tgui::TGUIWidget *w = widgets[i];
+		w->addCollidingChildrenToVector(v, exception, x1, y1, x2, y2);
+		if (w == exception || !w->acceptsFocus()) {
+			continue;
+		}
+		int _x1, _y1, _x2, _y2;
+		int wx, wy;
+		tgui::determineAbsolutePosition(w, &wx, &wy);
+		_x1 = wx;
+		_x2 = wx + w->getWidth();
+		_y1 = wy;
+		_y2 = wy + w->getHeight();
+		if (tgui::checkBoxCollision(x1, y1, x2, y2, _x1, _y1, _x2, _y2)) {
+			v.push_back(w);
+		}
+	}
+}
+
+bool TGUI_Splitter::getAbsoluteChildPosition(tgui::TGUIWidget *widget, int *x, int *y)
+{
+	for (size_t i = 0; i < widgets.size(); i++) {
+		if (widgets[i] == widget) {
+			int own_x, own_y;
+			tgui::determineAbsolutePosition(this, &own_x, &own_y);
+
+			int xx = 0;
+			int yy = 0;
+			if (direction == TGUI_HORIZONTAL) {
+				for (size_t j = 0; j < i; j++) {
+					xx += sizes[j];
+				}
+			}
+			else {
+				for (size_t j = 0; j < i; j++) {
+					yy += sizes[j];
+				}
+			}
+			*x = own_x + xx + widget->getX();
+			*y = own_y + yy + widget->getY();
+
+			return true;
+		}
+	}
+	
+	for (size_t i = 0; i < widgets.size(); i++) {
+		int xx, yy;
+		if (widgets[i]->getAbsoluteChildPosition(widget, &xx, &yy)) {
+			*x = xx;
+			*y = yy;
+			return true;
+		}
+	}
+
+	return false;
+}
 
 void TGUI_Splitter::setWidth(int w)
 {
@@ -668,7 +742,7 @@ void TGUI_Splitter::mouseMove(int rel_x, int rel_y, int abs_x, int abs_y)
 	}
 }
 
-tgui::TGUIWidget *TGUI_Splitter::update(void)
+tgui::TGUIWidget *TGUI_Splitter::update()
 {
 	for (unsigned int i = 0; i < widgets.size(); i++) {
 		if (!widgets[i])
@@ -738,7 +812,7 @@ void TGUI_Splitter::setClearColor(ALLEGRO_COLOR c)
 	clear_color = c;
 }
 
-void TGUI_Splitter::layout(void)
+void TGUI_Splitter::layout()
 {
 	int xx = x;
 	int yy = y;
@@ -801,7 +875,7 @@ void TGUI_Splitter::setPadding(int hpadding, int vpadding)
 	layout();
 }
 
-std::vector<tgui::TGUIWidget *> &TGUI_Splitter::getWidgets(void)
+std::vector<tgui::TGUIWidget *> &TGUI_Splitter::getWidgets()
 {
 	return widgets;
 }
@@ -867,7 +941,7 @@ TGUI_Splitter::TGUI_Splitter(
 	bool drawLines;
 */
 
-TGUI_Splitter::~TGUI_Splitter(void)
+TGUI_Splitter::~TGUI_Splitter()
 {
 	for (unsigned int i = 0; i < dummies.size(); i++) {
 		delete dummies[i];
@@ -876,7 +950,7 @@ TGUI_Splitter::~TGUI_Splitter(void)
 
 // --
 
-int TGUI_TextMenuItem::getShortcutKeycode(void)
+int TGUI_TextMenuItem::getShortcutKeycode()
 {
 	return shortcut_keycode;
 }
@@ -923,7 +997,7 @@ void TGUI_TextMenuItem::draw(int abs_x, int abs_y)
 	al_draw_line(abs_x+2+0.5, abs_y+0.5, abs_x+2+0.5, abs_y+height-0.5, al_color_name("white"), 1);
 }
 
-tgui::TGUIWidget *TGUI_TextMenuItem::update(void)
+tgui::TGUIWidget *TGUI_TextMenuItem::update()
 {
 	if (clicked) {
 		clicked = false;
@@ -997,7 +1071,7 @@ void TGUI_CheckMenuItem::draw(int abs_x, int abs_y)
 	}
 }
 
-tgui::TGUIWidget *TGUI_CheckMenuItem::update(void)
+tgui::TGUIWidget *TGUI_CheckMenuItem::update()
 {
 	if (clicked) {
 		checked = !checked;
@@ -1006,7 +1080,7 @@ tgui::TGUIWidget *TGUI_CheckMenuItem::update(void)
 	return TGUI_TextMenuItem::update();
 }
 
-bool TGUI_CheckMenuItem::isChecked(void)
+bool TGUI_CheckMenuItem::isChecked()
 {
 	return checked;
 }
@@ -1046,7 +1120,7 @@ void TGUI_RadioMenuItem::draw(int abs_x, int abs_y)
 	}
 }
 
-tgui::TGUIWidget *TGUI_RadioMenuItem::update(void)
+tgui::TGUIWidget *TGUI_RadioMenuItem::update()
 {
 	if (clicked) {
 		group->selected = id;
@@ -1058,12 +1132,12 @@ tgui::TGUIWidget *TGUI_RadioMenuItem::update(void)
 	return NULL;
 }
 
-bool TGUI_RadioMenuItem::isSelected(void)
+bool TGUI_RadioMenuItem::isSelected()
 {
 	return group->selected == id;
 }
 
-void TGUI_RadioMenuItem::setSelected(void)
+void TGUI_RadioMenuItem::setSelected()
 {
 	group->selected = id;
 }
@@ -1082,7 +1156,7 @@ void TGUI_SubMenuItem::setParentSplitter(TGUI_Splitter *splitter)
 	parentSplitter = splitter;
 }
 
-void TGUI_SubMenuItem::close(void)
+void TGUI_SubMenuItem::close()
 {
 	if (!is_open)
 		return;
@@ -1148,12 +1222,12 @@ void TGUI_SubMenuItem::mouseMove(int rel_x, int rel_y, int abs_x, int abs_y)
 	}
 }
 
-bool TGUI_SubMenuItem::isOpen(void)
+bool TGUI_SubMenuItem::isOpen()
 {
 	return is_open;
 }
 
-TGUI_Splitter *TGUI_SubMenuItem::getSubMenu(void)
+TGUI_Splitter *TGUI_SubMenuItem::getSubMenu()
 {
 	return sub_menu;
 }
@@ -1262,7 +1336,7 @@ void TGUI_MenuBar::mouseDown(int rel_x, int rel_y, int abs_x, int abs_y, int mb)
 	}
 }
 
-void TGUI_MenuBar::close(void)
+void TGUI_MenuBar::close()
 {
 	// close submenus first
 	std::vector<TGUI_SubMenuItem *> subMenus;
@@ -1276,7 +1350,7 @@ void TGUI_MenuBar::close(void)
 	open_menu = NULL;
 }
 
-tgui::TGUIWidget *TGUI_MenuBar::update(void)
+tgui::TGUIWidget *TGUI_MenuBar::update()
 {
 	if (itemToReturn) {
 		tgui::TGUIWidget *tmp = itemToReturn;
@@ -1315,7 +1389,7 @@ TGUI_MenuBar::TGUI_MenuBar(
 
 // --
 
-void TGUI_ScrollPane::chainDraw(void)
+void TGUI_ScrollPane::chainDraw()
 {
 	int abs_x, abs_y;
 	determineAbsolutePosition(this, &abs_x, &abs_y);
@@ -1645,7 +1719,7 @@ void TGUI_Slider::mouseUp(int rel_x, int rel_y, int abs_x, int abs_y, int mb)
 	}
 }
 
-float TGUI_Slider::getPosition(void)
+float TGUI_Slider::getPosition()
 {
 	return pos;
 }
@@ -1676,6 +1750,11 @@ TGUI_Slider::TGUI_Slider(int x, int y, int size, TGUI_Direction direction) :
 }
 
 // --
+
+bool TGUI_Button::acceptsFocus()
+{
+	return true;
+}
 
 void TGUI_Button::draw(int abs_x, int abs_y)
 {
@@ -1726,7 +1805,7 @@ static void getVisibleSubMenus(TGUI_Splitter *root, std::vector<TGUI_SubMenuItem
 
 // --
 
-bool TGUI_TextField::acceptsFocus(void)
+bool TGUI_TextField::acceptsFocus()
 {
 	return true;
 }
@@ -1737,14 +1816,7 @@ void TGUI_TextField::draw(int abs_x, int abs_y)
 
 	this->height = al_get_font_line_height(tgui::getFont()) + PADDING*2;
 
-	ALLEGRO_COLOR bgcolor;
-
-	if (validates) {
-		bgcolor = al_color_name("white");
-	}
-	else {
-		bgcolor = al_color_name("pink");
-	}
+	ALLEGRO_COLOR bgcolor = al_color_name("white");
 
 	al_draw_filled_rectangle(abs_x, abs_y, abs_x+width, abs_y+height, bgcolor);
 	al_draw_rectangle(abs_x+0.5, abs_y+0.5, abs_x+width-0.5, abs_y+height-0.5, al_color_name("black"), 1);
@@ -1770,7 +1842,7 @@ void TGUI_TextField::draw(int abs_x, int abs_y)
 	al_set_clipping_rectangle(_x, _y, _w, _h);
 }
 
-void TGUI_TextField::findOffset(void)
+void TGUI_TextField::findOffset()
 {
 	int len = cursorPos - offset;
 	std::string tmp = str.substr(offset, len);
@@ -1815,20 +1887,27 @@ bool TGUI_TextField::keyChar(int keycode, int unichar)
 			findOffset();
 		}
 	}
-	else if (keycode != ALLEGRO_KEY_ENTER && keycode != ALLEGRO_KEY_ESCAPE) {
-		if (cursorPos >= (int)str.length())
-			str.push_back(unichar);
-		else
-			str.insert(str.begin() + cursorPos, unichar);
+
+	if (unichar <= 0) {
+		return used;
+	}
+
+	std::string backup = str;
+	if (cursorPos >= (int)str.length()) {
+		str.push_back(unichar);
+	}
+	else {
+		str.insert(str.begin() + cursorPos, unichar);
+	}
+	if (validate && validate(str)) {
 		cursorPos++;
 		findOffset();
 	}
-	
-	if (validate) {
-		validates = validate(str);
+	else {
+		str = backup;
 	}
 
-	return used;
+	return false;
 }
 
 void TGUI_TextField::setValidator(bool (*validate)(const std::string str))
@@ -1836,12 +1915,12 @@ void TGUI_TextField::setValidator(bool (*validate)(const std::string str))
 	this->validate = validate;
 }
 
-bool TGUI_TextField::isValid(void)
+bool TGUI_TextField::isValid()
 {
 	return validate(str);
 }
 
-std::string TGUI_TextField::getText(void)
+std::string TGUI_TextField::getText()
 {
 	return str;
 }
@@ -1858,8 +1937,7 @@ TGUI_TextField::TGUI_TextField(std::string startStr, int x, int y, int width) :
 	str(startStr),
 	cursorPos(startStr.length()),
 	offset(0),
-	validate(NULL),
-	validates(true)
+	validate(NULL)
 {
 	this->x = x;
 	this->y = y;
@@ -1868,13 +1946,13 @@ TGUI_TextField::TGUI_TextField(std::string startStr, int x, int y, int width) :
 	findOffset();
 }
 
-TGUI_TextField::~TGUI_TextField(void)
+TGUI_TextField::~TGUI_TextField()
 {
 }
 
 // --
 
-int TGUI_Frame::barHeight(void)
+int TGUI_Frame::barHeight()
 {
 	return al_get_font_line_height(tgui::getFont()) + TITLE_PADDING*2;
 }
@@ -1941,7 +2019,7 @@ TGUI_Frame::TGUI_Frame(std::string title, int x, int y, int width, int height) :
 	this->height = height;
 }
 
-TGUI_Frame::~TGUI_Frame(void)
+TGUI_Frame::~TGUI_Frame()
 {
 }
 
@@ -1976,7 +2054,7 @@ TGUI_Label::TGUI_Label(std::string text, ALLEGRO_COLOR color, int x, int y, int 
 	this->font = tgui::getFont();
 }
 
-TGUI_Label::~TGUI_Label(void)
+TGUI_Label::~TGUI_Label()
 {
 }
 
