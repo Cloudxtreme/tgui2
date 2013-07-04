@@ -1407,7 +1407,7 @@ static TGUIWidget *getWidgetInDirection(TGUIWidget *widget, int xdir, int ydir)
 		TGUIWidget *w = colliding[i];
 		int wx2, wy2;
 		determineAbsolutePosition(w, &wx2, &wy2);
-		int measuring_point2;
+		int measuring_point2 = 0;
 		if (xdir < 0) {
 			measuring_point2 = wx2 + w->getWidth();
 		}

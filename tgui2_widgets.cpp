@@ -1644,7 +1644,7 @@ void TGUI_Slider::draw(int abs_x, int abs_y)
 		lh = 0;
 	}
 	else {
-		// FIXME!!!!!!!!!!!!!!!!!!
+		x1 = y1 = w = h = lx = ly = lw = lh = 0;
 	}
 
 	al_draw_line(abs_x+lx+0.5, abs_y+ly+0.5, abs_x+lx+0.5+lw, abs_y+ly+0.5+lh, fore, 1);
