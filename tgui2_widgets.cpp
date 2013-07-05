@@ -229,10 +229,7 @@ bool TGUI_Splitter::getAbsoluteChildPosition(tgui::TGUIWidget *widget, int *x, i
 	}
 	
 	for (size_t i = 0; i < widgets.size(); i++) {
-		int xx, yy;
-		if (widgets[i]->getAbsoluteChildPosition(widget, &xx, &yy)) {
-			*x = xx;
-			*y = yy;
+		if (widgets[i]->getAbsoluteChildPosition(widget, x, y)) {
 			return true;
 		}
 	}
