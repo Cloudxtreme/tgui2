@@ -345,7 +345,9 @@ void draw()
 		preDrawWidgets[i]->preDraw(abs_x, abs_y);
 	}
 
-	drawRect(0, 0, screenWidth, screenHeight);
+	int sw, sh;
+	getScreenSize(&sw, &sh);
+	drawRect(0, 0, sw, sh);
 
 	// Draw focus
 	if (focussedWidget && focussedWidget->getDrawFocus()) {
@@ -1078,7 +1080,9 @@ void setClippedClip(int x, int y, int width, int height)
 void clearClip()
 {
 	clipSet = false;
-	al_set_clipping_rectangle(0, 0, screenWidth, screenHeight);
+	int sw, sh;
+	getScreenSize(&sw, &sh);
+	al_set_clipping_rectangle(0, 0, sw, sh);
 }
 
 void getClip(int *x, int *y, int *w, int *h)
@@ -1306,7 +1310,9 @@ void doModal(
 				determineAbsolutePosition(preDrawWidgets[i], &abs_x, &abs_y);
 				preDrawWidgets[i]->preDraw(abs_x, abs_y);
 			}
-			::drawRect(stack[0], 0, 0, screenWidth, screenHeight);
+			int sw, sh;
+			getScreenSize(&sw, &sh);
+			::drawRect(stack[0], 0, 0, sw, sh);
 
 			// Draw focus
 			if (focussedWidget && focussedWidget->getDrawFocus()) {
@@ -1346,6 +1352,9 @@ static TGUIWidget *getWidgetInDirection(TGUIWidget *widget, int xdir, int ydir)
 	int wx1, wy1;
 	determineAbsolutePosition(widget, &wx1, &wy1);
 
+	int sw, sh;
+	getScreenSize(&sw, &sh);
+
 	if (xdir < 0) {
 		x1 = 0;
 		x2 = wx1;
@@ -1356,7 +1365,7 @@ static TGUIWidget *getWidgetInDirection(TGUIWidget *widget, int xdir, int ydir)
 	else if (xdir > 0) {
 		x1 = wx1 + widget->getWidth();
 		y1 = wy1;
-		x2 = screenWidth;
+		x2 = sw;
 		y2 = wy1 + widget->getHeight();
 		measuring_point = wx1 + widget->getWidth();
 	}
@@ -1371,7 +1380,7 @@ static TGUIWidget *getWidgetInDirection(TGUIWidget *widget, int xdir, int ydir)
 		x1 = wx1;
 		x2 = wx1 + widget->getWidth();
 		y1 = wy1 + widget->getHeight();
-		y2 = screenHeight;
+		y2 = sh;
 		measuring_point = wy1 + widget->getHeight();
 	}
 
@@ -1407,7 +1416,7 @@ static TGUIWidget *getWidgetInDirection(TGUIWidget *widget, int xdir, int ydir)
 		TGUIWidget *w = colliding[i];
 		int wx2, wy2;
 		determineAbsolutePosition(w, &wx2, &wy2);
-		int measuring_point2 = 0;
+		int measuring_point2;
 		if (xdir < 0) {
 			measuring_point2 = wx2 + w->getWidth();
 		}
@@ -1417,7 +1426,7 @@ static TGUIWidget *getWidgetInDirection(TGUIWidget *widget, int xdir, int ydir)
 		else if (ydir < 0) {
 			measuring_point2 = wy2 + w->getHeight();
 		}
-		else if (ydir > 0) {
+		else { // ydir > 0
 			measuring_point2 = wy2;
 		}
 		int dist = abs(measuring_point-measuring_point2);
