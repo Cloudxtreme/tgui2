@@ -429,11 +429,11 @@ void setOffset(float xoffset, float yoffset)
 
 void convertMousePosition(int *x, int *y)
 {
-	*x -= x_offset;
-	*y -= y_offset;
-
 	*x = *x / x_scale;
 	*y = *y / y_scale;
+
+	*x -= x_offset;
+	*y -= y_offset;
 }
 
 void bufferToScreenPos(int *x, int *y, int bw, int bh)
