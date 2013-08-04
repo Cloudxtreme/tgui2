@@ -605,7 +605,10 @@ void handleEvent_pretransformed(void *allegro_event)
 			int axis = event->joystick.axis;
 			float value = event->joystick.pos;
 
-			if (fabs(value) >= 0.5f) {
+			if (stick == 0 && joyAxisDown && fabs(value) <= 0.25f && ((axis == 0 && joyAxisDownXdir) || (axis == 1 && joyAxisDownYdir))) {
+				joyAxisDown = false;
+			}
+			else if (!joyAxisDown && fabs(value) >= 0.5f && stick == 0) {
 				int xdir, ydir;
 				if (axis == 0) {
 					ydir = 0;
@@ -630,9 +633,7 @@ void handleEvent_pretransformed(void *allegro_event)
 				joyAxisDownXdir = xdir;
 				joyAxisDownYdir = ydir;
 				joyAxisDownTime = al_get_time();
-			}
-			else {
-				joyAxisDown = false;
+				handleJoyAxisRepeat(stick, axis, value);
 			}
 
 			for (size_t i = 0; i < stack[0]->widgets.size(); i++) {
@@ -640,7 +641,6 @@ void handleEvent_pretransformed(void *allegro_event)
 					stack[0]->widgets[i]->chainJoyAxis(stick, axis, value);
 				}
 			}
-			handleJoyAxisRepeat(stick, axis, value);
 			break;
 		}
 		case ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN: {
@@ -1247,14 +1247,19 @@ static ALLEGRO_BITMAP *clone_target()
 
 void doModal(
 	ALLEGRO_EVENT_QUEUE *queue,
+	ALLEGRO_COLOR clear_color, // if alpha == 1 then don't use background image
 	ALLEGRO_BITMAP *background,
 	bool (*callback)(TGUIWidget *widget),
+	bool (*check_draw_callback)(),
 	void (*before_flip_callback)(),
 	void (*resize_callback)()
 	)
 {
 	ALLEGRO_BITMAP *back;
-	if (background) {
+	if (clear_color.a != 0) {
+		back = NULL;
+	}
+	else if (background) {
 		back = background;
 	}
 	else {
@@ -1280,8 +1285,11 @@ void doModal(
 				redraw++;
 			}
 
+			if (event.type == ALLEGRO_EVENT_JOYSTICK_CONFIGURATION) {
+				al_reconfigure_joysticks();
+			}
+
 			if (resize_callback && event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
-				al_acknowledge_resize(display);
 				resize_callback();
 			}
 
@@ -1294,7 +1302,7 @@ void doModal(
 			}
 		}
 
-		if (redraw) {
+		if (redraw && (!check_draw_callback || check_draw_callback())) {
 			redraw = 0;
 
 			al_clear_to_color(al_map_rgb_f(0.0f, 0.0f, 0.0f));
@@ -1302,7 +1310,12 @@ void doModal(
 			al_copy_transform(&backup, al_get_current_transform());
 			al_identity_transform(&t);
 			al_use_transform(&t);
-			al_draw_tinted_bitmap(back, al_map_rgb_f(0.5f, 0.5f, 0.5f), 0, 0, 0);
+			if (back) {
+				al_draw_tinted_bitmap(back, al_map_rgb_f(0.5f, 0.5f, 0.5f), 0, 0, 0);
+			}
+			else {
+				al_clear_to_color(clear_color);
+			}
 			al_use_transform(&backup);
 		
 			int abs_x, abs_y;
@@ -1337,7 +1350,7 @@ void doModal(
 	}
 
 done:
-	if (!background) {
+	if (clear_color.a == 0 && !background) {
 		al_destroy_bitmap(back);
 	}
 

@@ -279,6 +279,58 @@ bool TGUI_Splitter::keyChar(int keycode, int unichar)
 	return used;
 }
 
+void TGUI_Splitter::joyButtonDown(int button)
+{
+	for (unsigned int i = 0; i < widgets.size(); i++) {
+		TGUIWidget *widget = widgets[i];
+		if (widget) {
+			widget->joyButtonDown(button);
+		}
+	}
+}
+
+void TGUI_Splitter::joyButtonDownRepeat(int button)
+{
+	for (unsigned int i = 0; i < widgets.size(); i++) {
+		TGUIWidget *widget = widgets[i];
+		if (widget) {
+			widget->joyButtonDownRepeat(button);
+		}
+	}
+}
+
+void TGUI_Splitter::joyButtonUp(int button)
+{
+	for (unsigned int i = 0; i < widgets.size(); i++) {
+		TGUIWidget *widget = widgets[i];
+		if (widget) {
+			widget->joyButtonUp(button);
+		}
+	}
+}
+
+void TGUI_Splitter::joyAxis(int stick, int axis, float value)
+{
+	for (unsigned int i = 0; i < widgets.size(); i++) {
+		TGUIWidget *widget = widgets[i];
+		if (widget) {
+			widget->joyAxis(stick, axis, value);
+		}
+	}
+}
+
+bool TGUI_Splitter::joyAxisRepeat(int stick, int axis, float value)
+{
+	bool used = false;
+	for (unsigned int i = 0; i < widgets.size(); i++) {
+		TGUIWidget *widget = widgets[i];
+		if (widget) {
+			used = used || widget->joyAxisRepeat(stick, axis, value);
+		}
+	}
+	return used;
+}
+
 void TGUI_Splitter::set_resizable(int split, bool value)
 {
 	assert(split >= 0 && (unsigned)split < widgets.size()-1);
@@ -2027,16 +2079,11 @@ void TGUI_Label::setText(std::string text)
 	this->text = text;
 }
 
-void TGUI_Label::setFont(ALLEGRO_FONT *font)
-{
-	this->font = font;
-}
-
 void TGUI_Label::draw(int abs_x, int abs_y)
 {
 	setDefaultColors();
 
-	al_draw_text(font, color, abs_x, abs_y, flags, text.c_str());
+	al_draw_text(tgui::getFont(), color, abs_x, abs_y, flags, text.c_str());
 }
 
 TGUI_Label::TGUI_Label(std::string text, ALLEGRO_COLOR color, int x, int y, int flags) :
@@ -2048,7 +2095,6 @@ TGUI_Label::TGUI_Label(std::string text, ALLEGRO_COLOR color, int x, int y, int 
 	this->y = y;
 	this->width = al_get_text_width(tgui::getFont(), text.c_str());
 	this->height = al_get_font_line_height(tgui::getFont());
-	this->font = tgui::getFont();
 }
 
 TGUI_Label::~TGUI_Label()

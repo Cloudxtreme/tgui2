@@ -85,7 +85,7 @@ public:
 	virtual void joyButtonDown(int button) {}
 	virtual void joyButtonDownRepeat(int button) {}
 	virtual void joyButtonUp(int button) {}
-	virtual void joyAxis(int stick, int axis, float value) { }
+	virtual void joyAxis(int stick, int axis, float value) {}
 	virtual bool joyAxisRepeat(int stick, int axis, float value) { return false; }
 
 	virtual void mouseMoveAll(TGUIWidget *leftOut, int abs_x, int abs_y)
@@ -244,8 +244,10 @@ ALLEGRO_DISPLAY *getDisplay();
 // returned from tgui::update
 void doModal(
 	ALLEGRO_EVENT_QUEUE *queue, 
+	ALLEGRO_COLOR clear_color,
 	ALLEGRO_BITMAP *background,
 	bool (*callback)(TGUIWidget *widget),
+	bool (*check_draw_callback)(),
 	void (*before_flip_callback)(),
 	void (*resize_callback)()
 );

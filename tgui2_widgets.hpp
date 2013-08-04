@@ -114,6 +114,11 @@ public:
 	void keyDown(int keycode);
 	void keyUp(int keycode);
 	bool keyChar(int keycode, int unichar);
+	void joyButtonDown(int button);
+	void joyButtonDownRepeat(int button);
+	void joyButtonUp(int button);
+	void joyAxis(int stick, int axis, float value);
+	bool joyAxisRepeat(int stick, int axis, float value);
 	void mouseUp(int rel_x, int rel_y, int abs_x, int abs_y, int mb);
 	void mouseDown(int rel_x, int rel_y, int abs_x, int abs_y, int mb);
 	void mouseDownAll(TGUIWidget *leftOut, int abs_x, int abs_y, int mb);
@@ -422,7 +427,6 @@ public:
 	void draw(int abs_x, int abs_y);
 
 	void setText(std::string text);
-	void setFont(ALLEGRO_FONT *font);
 
 	TGUI_Label(std::string text, ALLEGRO_COLOR color, int x, int y, int flags);
 	virtual ~TGUI_Label();
@@ -432,7 +436,6 @@ protected:
 	std::string text;
 	ALLEGRO_COLOR color;
 	int flags;
-	ALLEGRO_FONT *font;
 };
 
 class TGUI_List : public TGUI_Extended_Widget
