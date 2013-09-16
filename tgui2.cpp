@@ -5,6 +5,8 @@
 #include <cstdio>
 #include <cmath>
 
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+
 namespace tgui {
 
 	struct TGUI {
@@ -1208,40 +1210,77 @@ ALLEGRO_DISPLAY *getDisplay()
 
 static ALLEGRO_BITMAP *clone_target()
 {
-#if 1
 	ALLEGRO_BITMAP *target = al_get_target_bitmap();
-	int w = al_get_bitmap_width(target);
-	int h = al_get_bitmap_height(target);
-
-	ALLEGRO_BITMAP *b = al_create_bitmap(w, h);
-
-	ALLEGRO_LOCKED_REGION *lr1 = al_lock_bitmap(b, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
-	ALLEGRO_LOCKED_REGION *lr2 = al_lock_bitmap_region(
-		target,
-		0, 0, w, h,
-		ALLEGRO_PIXEL_FORMAT_ANY,
-		ALLEGRO_LOCK_READONLY
+	ALLEGRO_BITMAP *tmp = al_create_bitmap(
+		al_get_bitmap_width(target),
+		al_get_bitmap_height(target)
 	);
-	int pixel_size = al_get_pixel_size(al_get_bitmap_format(target));
-	for (int y = 0; y < h; y++) {
-		uint8_t *d1 = (uint8_t *)lr1->data + lr1->pitch * y;
-		uint8_t *d2 = (uint8_t *)lr2->data + lr2->pitch * y;
-		memcpy(d1, d2, pixel_size*w);
-	}
-	al_unlock_bitmap(b);
-	al_unlock_bitmap(target);
 
-	return b;
-#else
-	ALLEGRO_BITMAP *b;
-	ALLEGRO_BITMAP *target = al_get_target_bitmap();
+#ifdef ALLEGRO_ANDROID
+	/*
+	int flags = al_get_new_bitmap_flags();
+	int format = al_get_new_bitmap_format();
+	al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+	al_set_new_bitmap_format(al_get_bitmap_format(target));
+	ALLEGRO_BITMAP *mem = al_create_bitmap(
+		al_get_bitmap_width(target),
+		al_get_bitmap_height(target)
+	);
+	al_set_new_bitmap_flags(flags);
+	al_set_new_bitmap_format(format);
+
+	al_set_target_bitmap(mem);
+	al_draw_bitmap(target, 0, 0, 0);
+	al_set_target_bitmap(tmp);
+	al_draw_bitmap(mem, 0, 0, 0);
+	al_set_target_bitmap(target);
+
+	al_destroy_bitmap(mem);
+	*/
+	const int MAX_SIZE = 512;
+
 	int w = al_get_bitmap_width(target);
 	int h = al_get_bitmap_height(target);
-	b = al_create_bitmap(w, h);
-	al_set_target_bitmap(b);
+	
+	int sz_w = ceil((float)w / MAX_SIZE);
+	int sz_h = ceil((float)h / MAX_SIZE);
+
+	for (int yy = 0; yy < sz_h; yy++) {
+		for (int xx = 0; xx < sz_w; xx++) {
+			int ww = MIN(MAX_SIZE, w-(xx*MAX_SIZE));
+			int hh = MIN(MAX_SIZE, h-(yy*MAX_SIZE));
+			ALLEGRO_LOCKED_REGION *lr1 = al_lock_bitmap_region(
+				tmp,
+				xx*MAX_SIZE, yy*MAX_SIZE, ww, hh,
+				al_get_bitmap_format(target), ALLEGRO_LOCK_WRITEONLY
+			);
+			ALLEGRO_LOCKED_REGION *lr2 = al_lock_bitmap_region(
+				target,
+				xx*MAX_SIZE, yy*MAX_SIZE, ww, hh,
+				al_get_bitmap_format(target), ALLEGRO_LOCK_READONLY
+			);
+			int pixel_size = al_get_pixel_size(al_get_bitmap_format(target));
+			for (int y = 0; y < hh; y++) {
+				uint8_t *d1 = (uint8_t *)lr1->data + lr1->pitch * y;
+				uint8_t *d2 = (uint8_t *)lr2->data + lr2->pitch * y;
+				memcpy(d1, d2, pixel_size*ww);
+			}
+			al_unlock_bitmap(tmp);
+			al_unlock_bitmap(target);
+		}
+	}
+#else
+	ALLEGRO_BITMAP *old_target = al_get_target_bitmap();
+
+	al_set_target_bitmap(tmp);
+
+	al_clear_to_color(al_map_rgb_f(0, 0, 0));
+
+	al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+	
 	al_draw_bitmap(target, 0, 0, 0);
-	al_set_target_bitmap(target);
-	return b;
+
+	al_set_target_bitmap(old_target);
 #endif
 }
 
