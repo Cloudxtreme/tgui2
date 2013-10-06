@@ -1281,6 +1281,8 @@ static ALLEGRO_BITMAP *clone_target()
 
 	al_set_target_bitmap(old_target);
 #endif
+
+	return tmp;
 }
 
 void doModal(
