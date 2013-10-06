@@ -1009,7 +1009,6 @@ void getScreenSize(int *w, int *h)
 
 void resize(TGUIWidget *parent)
 {
-	getScreenSize(NULL, NULL);
 	clearClip();
 
 	if (parent) {
