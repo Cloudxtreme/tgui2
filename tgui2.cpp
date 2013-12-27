@@ -151,6 +151,17 @@ void setFocus(TGUIWidget *widget)
 	}
 }
 
+void setFocusLosingGaining(TGUIWidget *widget)
+{
+	if (focussedWidget) {
+		focussedWidget->losingFocus();
+	}
+	if (widget) {
+		widget->gainingFocus();
+	}
+	setFocus(widget);
+}
+
 TGUIWidget *getFocussedWidget()
 {
 	return focussedWidget;
@@ -171,7 +182,7 @@ void focusPrevious()
 	for (size_t i = 0; i < focusOrderList.size(); i++) {
 		if (focusOrderList[i] == focussed) {
 			if (i > 0) {
-				setFocus(focusOrderList[i-1]);
+				setFocusLosingGaining(focusOrderList[i-1]);
 			}
 			else {
 				return;
@@ -190,7 +201,7 @@ void focusNext()
 	for (size_t i = 0; i < focusOrderList.size(); i++) {
 		if (focusOrderList[i] == focussed) {
 			if (i < focusOrderList.size()-1) {
-				setFocus(focusOrderList[i+1]);
+				setFocusLosingGaining(focusOrderList[i+1]);
 			}
 			else {
 				return;
@@ -232,13 +243,13 @@ static void handleJoyAxisRepeat(int stick, int axis, float value)
 			if (value <= -0.5f) {
 				TGUIWidget *w = getWidgetInDirection(focussedWidget, -1, 0);
 				if (w) {
-					setFocus(w);
+					setFocusLosingGaining(w);
 				}
 			}
 			else if (value >= 0.5f) {
 				TGUIWidget *w = getWidgetInDirection(focussedWidget, 1, 0);
 				if (w) {
-					setFocus(w);
+					setFocusLosingGaining(w);
 				}
 			}
 		}
@@ -246,13 +257,13 @@ static void handleJoyAxisRepeat(int stick, int axis, float value)
 			if (value <= -0.5f) {
 				TGUIWidget *w = getWidgetInDirection(focussedWidget, 0, -1);
 				if (w) {
-					setFocus(w);
+					setFocusLosingGaining(w);
 				}
 			}
 			else if (value >= 0.5f) {
 				TGUIWidget *w = getWidgetInDirection(focussedWidget, 0, 1);
 				if (w) {
-					setFocus(w);
+					setFocusLosingGaining(w);
 				}
 			}
 		}
@@ -578,25 +589,25 @@ void handleEvent_pretransformed(void *allegro_event)
 				if (focussedWidget && event->keyboard.keycode == ALLEGRO_KEY_LEFT) {
 					TGUIWidget *w = getWidgetInDirection(focussedWidget, -1, 0);
 					if (w) {
-						setFocus(w);
+						setFocusLosingGaining(w);
 					}
 				}
 				else if (focussedWidget && event->keyboard.keycode == ALLEGRO_KEY_RIGHT) {
 					TGUIWidget *w = getWidgetInDirection(focussedWidget, 1, 0);
 					if (w) {
-						setFocus(w);
+						setFocusLosingGaining(w);
 					}
 				}
 				else if (focussedWidget && event->keyboard.keycode == ALLEGRO_KEY_UP) {
 					TGUIWidget *w = getWidgetInDirection(focussedWidget, 0, -1);
 					if (w) {
-						setFocus(w);
+						setFocusLosingGaining(w);
 					}
 				}
 				else if (focussedWidget && event->keyboard.keycode == ALLEGRO_KEY_DOWN) {
 					TGUIWidget *w = getWidgetInDirection(focussedWidget, 0, 1);
 					if (w) {
-						setFocus(w);
+						setFocusLosingGaining(w);
 					}
 				}
 			}

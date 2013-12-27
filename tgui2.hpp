@@ -134,11 +134,8 @@ public:
 	virtual bool chainJoyAxisRepeat(int stick, int axis, float value);
 	virtual void chainDraw();
 
-	/* losing/gaining: return true to lose/gain, false to retain focus */
-	virtual bool losingFocus() { return true; }
-	virtual bool gainingFocus() { return true; }
-	virtual void lostFocus() {}
-	virtual void gainedFocus() {}
+	virtual void losingFocus() {}
+	virtual void gainingFocus() {}
 
 	virtual void addCollidingChildrenToVector(std::vector<tgui::TGUIWidget *> &v, tgui::TGUIWidget *exception, int x1, int y1, int x2, int y2) {}
 
