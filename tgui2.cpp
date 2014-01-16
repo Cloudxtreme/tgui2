@@ -11,6 +11,7 @@ namespace tgui {
 
 	struct TGUI {
 		std::vector<TGUIWidget*> widgets;
+		bool hidden;
 	};
 
 }
@@ -126,6 +127,7 @@ void init(ALLEGRO_DISPLAY *d)
 	deletestack();
 
 	TGUI *gui = new TGUI;
+	gui->hidden = false;
 
 	stack.push_back(gui);
 	stackFocus.push_back(NULL);
@@ -380,13 +382,16 @@ void draw()
 void drawRect(int x1, int y1, int x2, int y2)
 {
 	for (int i = stack.size()-1; i >= 0; i--) {
-		::drawRect(stack[i], x1, y1, x2, y2);
+		if (!stack[i]->hidden) {
+			::drawRect(stack[i], x1, y1, x2, y2);
+		}
 	}
 }
 
 void push()
 {
 	TGUI *gui = new TGUI;
+	gui->hidden = false;
 
 	stack.insert(stack.begin(), gui);
 	stackFocus.insert(stackFocus.begin(), getFocussedWidget());
@@ -1468,9 +1473,118 @@ static TGUIWidget *getWidgetInDirection(TGUIWidget *widget, int xdir, int ydir)
 		}
 	}
 
-	// FIXME: certain conditions here: (If there isn't one, go to the next on in own group -- if none in group, go to next group. failing that, do nothing) 
 	if (colliding.size() == 0) {
-		return NULL;
+		// Find any in that direction regardless of widget dimensions
+		if (xdir < 0) {
+			x1 = 0;
+			x2 = wx1 - 1;
+			y1 = 0;
+			y2 = sh;
+		}
+		else if (xdir > 0) {
+			x1 = wx1 + widget->getWidth() + 1;
+			x2 = sw;
+			y1 = 0;
+			y2 = sh;
+		}
+		else if (ydir < 0) {
+			x1 = 0;
+			x2 = sw;
+			y1 = 0;
+			y2 = wy1 - 1;
+		}
+		else { // ydir > 0
+			x1 = 0;
+			x2 = sw;
+			y1 = wy1 + widget->getHeight() + 1;
+			y2 = sh;
+		}
+		for (size_t i = 0; i < stack[0]->widgets.size(); i++) {
+			TGUIWidget* w = stack[0]->widgets[i];
+			w->addCollidingChildrenToVector(colliding, widget, x1, y1, x2, y2);
+			if (w == widget || !w->acceptsFocus()) {
+				continue;
+			}
+			int _x1, _y1, _x2, _y2;
+			int wx2, wy2;
+			determineAbsolutePosition(w, &wx2, &wy2);
+			_x1 = wx2;
+			_x2 = wx2 + w->getWidth();
+			_y1 = wy2;
+			_y2 = wy2 + w->getHeight();
+			if (checkBoxCollision(x1, y1, x2, y2, _x1, _y1, _x2, _y2)) {
+				colliding.push_back(w);
+			}
+		}
+		if (colliding.size() == 0) {
+			return NULL;
+		}
+		if (xdir < 0 || xdir > 0) {
+			// find closest xs to center
+			int closest = INT_MAX;
+			for (size_t i = 0; i < colliding.size(); i++) {
+				int dx = abs((widget->getX() + widget->getWidth()/2) - (colliding[i]->getX() + colliding[i]->getWidth()/2));
+				if (dx < closest) {
+					closest = dx;
+				}
+			}
+			// drop everything not == closest distance
+			std::vector<TGUIWidget *>::iterator it;
+			for (it = colliding.begin(); it != colliding.end();) {
+				TGUIWidget *w = *it;
+				int dx = abs((widget->getX() + widget->getWidth()/2) - (w->getX() + w->getWidth()/2));
+				if (dx != closest) {
+					it = colliding.erase(it);
+				}
+				else {
+					it++;
+				}
+			}
+			// Now return the one with the closest x (all xs are the same now or there's only 1)
+			closest = INT_MAX;
+			TGUIWidget *closest_w = NULL;
+			for (size_t i = 0; i < colliding.size(); i++) {
+				int dy = abs((widget->getY() + widget->getHeight()/2) - (colliding[i]->getY() + colliding[i]->getHeight()/2));
+				if (dy < closest) {
+					closest = dy;
+					closest_w = colliding[i];
+				}
+			}
+			return closest_w;
+		}
+		else { // ydir < 0 || ydir > 0
+			// find closest ys to center
+			int closest = INT_MAX;
+			for (size_t i = 0; i < colliding.size(); i++) {
+				int dy = abs((widget->getY() + widget->getHeight()/2) - (colliding[i]->getY() + colliding[i]->getHeight()/2));
+				if (dy < closest) {
+					closest = dy;
+				}
+			}
+			// drop everything not == closest distance
+			std::vector<TGUIWidget *>::iterator it;
+			for (it = colliding.begin(); it != colliding.end();) {
+				TGUIWidget *w = *it;
+				int dy = abs((widget->getY() + widget->getHeight()/2) - (w->getY() + w->getHeight()/2));
+				if (dy != closest) {
+					it = colliding.erase(it);
+				}
+				else {
+					it++;
+				}
+			}
+			// Now return the one with the closest y (all ys are the same now or there's only 1)
+			closest = INT_MAX;
+			TGUIWidget *closest_w = NULL;
+			for (size_t i = 0; i < colliding.size(); i++) {
+				int dx = abs((widget->getX() + widget->getWidth()/2) - (colliding[i]->getX() + colliding[i]->getWidth()/2));
+				if (dx < closest) {
+					closest = dx;
+					closest_w = colliding[i];
+				}
+			}
+			return closest_w;
+		}
 	}
 
 	int closest = INT_MAX;
@@ -1522,6 +1636,16 @@ void flush()
 {
 	joyButtonDown = false;
 	joyAxisDown = false;
+}
+
+void hide()
+{
+	stack[0]->hidden = true;
+}
+
+void unhide()
+{
+	stack[0]->hidden = false;
 }
 
 } // end namespace tgui
