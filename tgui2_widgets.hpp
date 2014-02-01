@@ -408,6 +408,7 @@ public:
 	void mouseUp(int rel_x, int rel_y, int abs_x, int abs_y, int mb);
 	void mouseMove(int rel_x, int rel_y, int abs_x, int abs_y);
 	void draw(int abs_x, int abs_y);
+	bool getAbsoluteChildPosition(tgui::TGUIWidget *widget, int *x, int *y);
 
 	int barHeight();
 

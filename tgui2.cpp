@@ -834,7 +834,7 @@ TGUIWidget *TGUIWidget::chainMouseDown(int rel_x, int rel_y, int abs_x, int abs_
 	}
 
 	if (!used) {
-		// handle it within outself
+		// handle it within ourself
 		if (pointOnWidget(this, abs_x, abs_y)) {
 			mouseDown(rel_x, rel_y, abs_x, abs_y, mb);
 			ret = this;
@@ -868,7 +868,7 @@ TGUIWidget *TGUIWidget::chainMouseUp(int rel_x, int rel_y, int abs_x, int abs_y,
 	}
 
 	if (!used) {
-		// handle it within outself
+		// handle it within ourself
 		if (pointOnWidget(this, abs_x, abs_y)) {
 			mouseUp(rel_x, rel_y, abs_x, abs_y, mb);
 			ret = this;
@@ -880,7 +880,7 @@ TGUIWidget *TGUIWidget::chainMouseUp(int rel_x, int rel_y, int abs_x, int abs_y,
 
 void TGUIWidget::chainKeyDown(int keycode)
 {
-	// handle it within outself
+	// handle it within ourself
 	keyDown(keycode);
 
 	// pass it on to the child
@@ -893,7 +893,7 @@ void TGUIWidget::chainKeyDown(int keycode)
 
 void TGUIWidget::chainKeyUp(int keycode)
 {
-	// handle it within outself
+	// handle it within ourself
 	keyUp(keycode);
 
 	// pass it on to the child
@@ -906,7 +906,7 @@ void TGUIWidget::chainKeyUp(int keycode)
 
 bool TGUIWidget::chainKeyChar(int keycode, int unichar)
 {
-	// handle it within outself
+	// handle it within ourself
 	bool used = keyChar(keycode, unichar);
 
 	// pass it on to the child
@@ -919,7 +919,7 @@ bool TGUIWidget::chainKeyChar(int keycode, int unichar)
 
 void TGUIWidget::chainJoyButtonDown(int button)
 {
-	// handle it within outself
+	// handle it within ourself
 	joyButtonDown(button);
 
 	// pass it on to the child
@@ -932,7 +932,7 @@ void TGUIWidget::chainJoyButtonDown(int button)
 
 void TGUIWidget::chainJoyButtonDownRepeat(int button)
 {
-	// handle it within outself
+	// handle it within ourself
 	joyButtonDownRepeat(button);
 
 	// pass it on to the child
@@ -945,7 +945,7 @@ void TGUIWidget::chainJoyButtonDownRepeat(int button)
 
 void TGUIWidget::chainJoyButtonUp(int button)
 {
-	// handle it within outself
+	// handle it within ourself
 	joyButtonUp(button);
 
 	// pass it on to the child
@@ -958,7 +958,7 @@ void TGUIWidget::chainJoyButtonUp(int button)
 
 void TGUIWidget::chainJoyAxis(int stick, int axis, float value)
 {
-	// handle it within outself
+	// handle it within ourself
 	joyAxis(stick, axis, value);
 
 	// pass it on to the child
@@ -969,7 +969,7 @@ void TGUIWidget::chainJoyAxis(int stick, int axis, float value)
 
 bool TGUIWidget::chainJoyAxisRepeat(int stick, int axis, float value)
 {
-	// handle it within outself
+	// handle it within ourself
 	bool used = joyAxisRepeat(stick, axis, value);
 
 	// pass it on to the child

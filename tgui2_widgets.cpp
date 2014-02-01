@@ -2006,6 +2006,16 @@ int TGUI_Frame::barHeight()
 	return al_get_font_line_height(tgui::getFont()) + TITLE_PADDING*2;
 }
 
+bool TGUI_Frame::getAbsoluteChildPosition(tgui::TGUIWidget *widget, int *x, int *y)
+{
+	if (child == widget) {
+		*x = this->x + widget->getX();
+		*y = this->y + widget->getY();
+		return true;
+	}
+	return false;
+}
+
 void TGUI_Frame::mouseDown(int rel_x, int rel_y, int abs_x, int abs_y, int mb)
 {
 	int top = al_get_font_line_height(tgui::getFont()) + TITLE_PADDING*2;
