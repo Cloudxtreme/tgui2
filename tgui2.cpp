@@ -467,6 +467,7 @@ void setFocusWrap(bool wrap)
 
 void maybe_make_mouse_event(ALLEGRO_EVENT *event)
 {
+#if defined ALLEGRO_ANDROID || defined ALLEGRO_IPHONE
 	if (event->type == ALLEGRO_EVENT_TOUCH_BEGIN ||
 			event->type == ALLEGRO_EVENT_TOUCH_END ||
 			event->type == ALLEGRO_EVENT_TOUCH_MOVE) {
@@ -485,6 +486,7 @@ void maybe_make_mouse_event(ALLEGRO_EVENT *event)
 		event->mouse.w = 0;
 		event->mouse.button = event->touch.id;
 	}
+#endif
 }
 
 void handleEvent_pretransformed(void *allegro_event)
@@ -494,6 +496,8 @@ void handleEvent_pretransformed(void *allegro_event)
 	maybe_make_mouse_event(event);
 
 	switch (event->type) {
+		case ALLEGRO_EVENT_TIMER:
+			break;
 		case ALLEGRO_EVENT_MOUSE_AXES: {
 			int mx = event->mouse.x;
 			int my = event->mouse.y;
