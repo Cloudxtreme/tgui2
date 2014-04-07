@@ -14,10 +14,6 @@
 
 namespace tgui {
 
-enum TGUIEventType {
-	TGUI_EVENT_OBJECT = 0
-};
-
 // forward declarations
 void getScreenSize(int *w, int *h);
 
@@ -232,22 +228,9 @@ bool isDeepChild(TGUIWidget *parent, TGUIWidget *widget);
 std::vector<TGUIWidget *> removeChildren(TGUIWidget *widget);
 void addPreDrawWidget(TGUIWidget *widget);
 void addPostDrawWidget(TGUIWidget *widget);
-void pushEvent(TGUIEventType type, void *data);
-ALLEGRO_EVENT_SOURCE *getEventSource();
 bool isKeyDown(int keycode);
 void setScreenSize(int w, int h);
 ALLEGRO_DISPLAY *getDisplay();
-// Callback should return true to cancel dialog, it will get each widget
-// returned from tgui::update
-void doModal(
-	ALLEGRO_EVENT_QUEUE *queue, 
-	ALLEGRO_COLOR clear_color,
-	ALLEGRO_BITMAP *background,
-	bool (*callback)(TGUIWidget *widget),
-	bool (*check_draw_callback)(),
-	void (*before_flip_callback)(),
-	void (*resize_callback)()
-);
 void drawFocusRectangle(int x, int y, int w, int h);
 bool checkBoxCollision(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4);
 void hide();

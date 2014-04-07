@@ -48,14 +48,6 @@ static bool clipSet = false;
 static std::vector<TGUIWidget *> preDrawWidgets;
 static std::vector<TGUIWidget *> postDrawWidgets;
 
-struct TGUIEventSource {
-	ALLEGRO_EVENT_SOURCE event_source;
-	TGUIEventType type;
-	TGUIWidget *widget;
-};
-
-static TGUIEventSource eventSource;
-
 static bool keyState[ALLEGRO_KEY_MAX] = { 0, };
 
 static int screenSizeOverrideX = -1;
@@ -135,8 +127,6 @@ void init(ALLEGRO_DISPLAY *d)
 	lastUpdate = currentTimeMillis();
 
 	getScreenSize(&screenWidth, &screenHeight);
-
-	al_init_user_event_source((ALLEGRO_EVENT_SOURCE *)&eventSource);
 }
 
 void shutdown()
@@ -1197,27 +1187,6 @@ void TGUIWidget::remove() {
 	}
 }
 
-static void destroyEvent(ALLEGRO_USER_EVENT *u)
-{
-	delete u;
-}
-
-void pushEvent(TGUIEventType type, void *data) {
-	ALLEGRO_EVENT_SOURCE *es = (ALLEGRO_EVENT_SOURCE *)&eventSource;
-
-	ALLEGRO_USER_EVENT *event = new ALLEGRO_USER_EVENT;
-	((ALLEGRO_EVENT *)event)->type = ALLEGRO_GET_EVENT_TYPE('T', 'G', 'U', 'I');
-	event->source = NULL;
-	event->data1 = (intptr_t)type;
-	event->data2 = (intptr_t)data;
-
-	al_emit_user_event(es, (ALLEGRO_EVENT *)event, destroyEvent);
-};
-
-ALLEGRO_EVENT_SOURCE *getEventSource() {
-	return (ALLEGRO_EVENT_SOURCE *)&eventSource;
-}
-
 bool isKeyDown(int keycode) {
 	return keyState[keycode];
 }
@@ -1225,205 +1194,6 @@ bool isKeyDown(int keycode) {
 ALLEGRO_DISPLAY *getDisplay()
 {
 	return display;
-}
-
-static ALLEGRO_BITMAP *clone_target()
-{
-	ALLEGRO_BITMAP *target = al_get_target_bitmap();
-	ALLEGRO_BITMAP *tmp = al_create_bitmap(
-		al_get_bitmap_width(target),
-		al_get_bitmap_height(target)
-	);
-
-#ifdef ALLEGRO_ANDROID
-	/*
-	int flags = al_get_new_bitmap_flags();
-	int format = al_get_new_bitmap_format();
-	al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-	al_set_new_bitmap_format(al_get_bitmap_format(target));
-	ALLEGRO_BITMAP *mem = al_create_bitmap(
-		al_get_bitmap_width(target),
-		al_get_bitmap_height(target)
-	);
-	al_set_new_bitmap_flags(flags);
-	al_set_new_bitmap_format(format);
-
-	al_set_target_bitmap(mem);
-	al_draw_bitmap(target, 0, 0, 0);
-	al_set_target_bitmap(tmp);
-	al_draw_bitmap(mem, 0, 0, 0);
-	al_set_target_bitmap(target);
-
-	al_destroy_bitmap(mem);
-	*/
-	const int MAX_SIZE = 512;
-
-	int w = al_get_bitmap_width(target);
-	int h = al_get_bitmap_height(target);
-	
-	int sz_w = ceil((float)w / MAX_SIZE);
-	int sz_h = ceil((float)h / MAX_SIZE);
-
-	for (int yy = 0; yy < sz_h; yy++) {
-		for (int xx = 0; xx < sz_w; xx++) {
-			int ww = MIN(MAX_SIZE, w-(xx*MAX_SIZE));
-			int hh = MIN(MAX_SIZE, h-(yy*MAX_SIZE));
-			ALLEGRO_LOCKED_REGION *lr1 = al_lock_bitmap_region(
-				tmp,
-				xx*MAX_SIZE, yy*MAX_SIZE, ww, hh,
-				al_get_bitmap_format(target), ALLEGRO_LOCK_WRITEONLY
-			);
-			ALLEGRO_LOCKED_REGION *lr2 = al_lock_bitmap_region(
-				target,
-				xx*MAX_SIZE, yy*MAX_SIZE, ww, hh,
-				al_get_bitmap_format(target), ALLEGRO_LOCK_READONLY
-			);
-			int pixel_size = al_get_pixel_size(al_get_bitmap_format(target));
-			for (int y = 0; y < hh; y++) {
-				uint8_t *d1 = (uint8_t *)lr1->data + lr1->pitch * y;
-				uint8_t *d2 = (uint8_t *)lr2->data + lr2->pitch * y;
-				memcpy(d1, d2, pixel_size*ww);
-			}
-			al_unlock_bitmap(tmp);
-			al_unlock_bitmap(target);
-		}
-	}
-#else
-	ALLEGRO_BITMAP *old_target = al_get_target_bitmap();
-
-	al_set_target_bitmap(tmp);
-
-	al_clear_to_color(al_map_rgb_f(0, 0, 0));
-
-	al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
-	
-	al_draw_bitmap(target, 0, 0, 0);
-
-	al_set_target_bitmap(old_target);
-#endif
-
-	return tmp;
-}
-
-void doModal(
-	ALLEGRO_EVENT_QUEUE *queue,
-	ALLEGRO_COLOR clear_color, // if alpha == 1 then don't use background image
-	ALLEGRO_BITMAP *background,
-	bool (*callback)(TGUIWidget *widget),
-	bool (*check_draw_callback)(),
-	void (*before_flip_callback)(),
-	void (*resize_callback)()
-	)
-{
-	ALLEGRO_BITMAP *back;
-	if (clear_color.a != 0) {
-		back = NULL;
-	}
-	else if (background) {
-		back = background;
-	}
-	else {
-		back = clone_target();
-	}
-
-	bool lost = false;
-
-	int redraw = 0;
-	ALLEGRO_TIMER *logic_timer = al_create_timer(1.0/60.0);
-	al_register_event_source(queue, al_get_timer_event_source(logic_timer));
-	al_start_timer(logic_timer);
-
-	while (1) {
-		ALLEGRO_EVENT event;
-
-		while (!al_event_queue_is_empty(queue)) {
-			al_wait_for_event(queue, &event);
-
-			if (event.type == ALLEGRO_EVENT_TIMER && event.timer.source != logic_timer) {
-				continue;
-			}
-
-			if (event.type == ALLEGRO_EVENT_TIMER) {
-				redraw++;
-			}
-
-			if (event.type == ALLEGRO_EVENT_JOYSTICK_CONFIGURATION) {
-				al_reconfigure_joysticks();
-			}
-
-			if (resize_callback && event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
-				resize_callback();
-			}
-
-			if (event.type == ALLEGRO_EVENT_DISPLAY_LOST) {
-				lost = true;
-			}
-			else if (event.type == ALLEGRO_EVENT_DISPLAY_FOUND) {
-				lost = false;
-			}
-
-			handleEvent(&event);
-
-			TGUIWidget *w = update();
-
-			if (callback(w)) {
-				goto done;
-			}
-		}
-
-		if (!lost && redraw && (!check_draw_callback || check_draw_callback())) {
-			redraw = 0;
-
-			al_clear_to_color(al_map_rgb_f(0.0f, 0.0f, 0.0f));
-			ALLEGRO_TRANSFORM t, backup;
-			al_copy_transform(&backup, al_get_current_transform());
-			al_identity_transform(&t);
-			al_use_transform(&t);
-			if (back) {
-				al_draw_tinted_bitmap(back, al_map_rgb_f(0.5f, 0.5f, 0.5f), 0, 0, 0);
-			}
-			else {
-				al_clear_to_color(clear_color);
-			}
-			al_use_transform(&backup);
-		
-			int abs_x, abs_y;
-			for (size_t i = 0; i < preDrawWidgets.size(); i++) {
-				determineAbsolutePosition(preDrawWidgets[i], &abs_x, &abs_y);
-				preDrawWidgets[i]->preDraw(abs_x, abs_y);
-			}
-			int sw, sh;
-			getScreenSize(&sw, &sh);
-			::drawRect(stack[0], 0, 0, sw, sh);
-
-			// Draw focus
-			if (focussedWidget && focussedWidget->getDrawFocus()) {
-				int x, y;
-				determineAbsolutePosition(focussedWidget, &x, &y);
-				int w = focussedWidget->getWidth();
-				int h = focussedWidget->getHeight();
-				drawFocusRectangle(x, y, w, h);
-			}
-
-			for (size_t i = 0; i < postDrawWidgets.size(); i++) {
-				determineAbsolutePosition(postDrawWidgets[i], &abs_x, &abs_y);
-				postDrawWidgets[i]->postDraw(abs_x, abs_y);
-			}
-
-			if (before_flip_callback) {
-				before_flip_callback();
-			}
-
-			al_flip_display();
-		}
-	}
-
-done:
-	if (clear_color.a == 0 && !background) {
-		al_destroy_bitmap(back);
-	}
-
-	al_destroy_timer(logic_timer);
 }
 
 static TGUIWidget *getWidgetInDirection(TGUIWidget *widget, int xdir, int ydir)
