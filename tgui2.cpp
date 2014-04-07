@@ -1326,6 +1326,8 @@ void doModal(
 		back = clone_target();
 	}
 
+	bool lost = false;
+
 	int redraw = 0;
 	ALLEGRO_TIMER *logic_timer = al_create_timer(1.0/60.0);
 	al_register_event_source(queue, al_get_timer_event_source(logic_timer));
@@ -1353,6 +1355,13 @@ void doModal(
 				resize_callback();
 			}
 
+			if (event.type == ALLEGRO_EVENT_DISPLAY_LOST) {
+				lost = true;
+			}
+			else if (event.type == ALLEGRO_EVENT_DISPLAY_FOUND) {
+				lost = false;
+			}
+
 			handleEvent(&event);
 
 			TGUIWidget *w = update();
@@ -1362,7 +1371,7 @@ void doModal(
 			}
 		}
 
-		if (redraw && (!check_draw_callback || check_draw_callback())) {
+		if (!lost && redraw && (!check_draw_callback || check_draw_callback())) {
 			redraw = 0;
 
 			al_clear_to_color(al_map_rgb_f(0.0f, 0.0f, 0.0f));
