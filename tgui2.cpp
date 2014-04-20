@@ -58,6 +58,8 @@ static int joyButtonDownCount = 0;
 static int joyButtonDownNum;
 static double joyButtonDownTime;
 static bool joyAxisDown = false;
+static int joyAxisStick;
+static int joyAxisAxis;
 static int joyAxisDownCount = 0;
 static int joyAxisDownXdir;
 static int joyAxisDownYdir;
@@ -641,6 +643,8 @@ void handleEvent_pretransformed(void *allegro_event)
 					}
 				}
 				joyAxisDown = true;
+				joyAxisStick = stick;
+				joyAxisAxis = axis;
 				joyAxisDownCount = 0;
 				joyAxisDownXdir = xdir;
 				joyAxisDownYdir = ydir;
@@ -1429,6 +1433,38 @@ void hide()
 void unhide()
 {
 	stack[0]->hidden = false;
+}
+
+void pauseEvents()
+{
+	for (int j = 0; j < ALLEGRO_KEY_MAX; j++) {
+		if (keyState[j]) {
+			keyState[j] = false;
+			for (size_t i = 0; i < stack[0]->widgets.size(); i++) {
+				if (stack[0]->widgets[i]->getParent() == NULL) {
+					stack[0]->widgets[i]->chainKeyUp(j);
+				}
+			}
+		}
+	}
+
+	if (joyAxisDown) {
+		joyAxisDown = false;
+		for (size_t i = 0; i < stack[0]->widgets.size(); i++) {
+			if (stack[0]->widgets[i]->getParent() == NULL) {
+				stack[0]->widgets[i]->chainJoyAxis(joyAxisStick, joyAxisAxis, 0.0);
+			}
+		}
+	}
+
+	if (joyButtonDown) {
+		joyButtonDown = false;
+		for (size_t i = 0; i < stack[0]->widgets.size(); i++) {
+			if (stack[0]->widgets[i]->getParent() == NULL) {
+				stack[0]->widgets[i]->chainJoyButtonUp(joyButtonDownNum);
+			}
+		}
+	}
 }
 
 } // end namespace tgui
