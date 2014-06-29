@@ -561,6 +561,7 @@ void handleEvent_pretransformed(void *allegro_event)
 			}
 			break;
 		}
+#ifndef ALLEGRO_ANDROID
 		case ALLEGRO_EVENT_KEY_DOWN: {
 			keyState[event->keyboard.keycode] = true;
 			for (size_t i = 0; i < stack[0]->widgets.size(); i++) {
@@ -614,6 +615,7 @@ void handleEvent_pretransformed(void *allegro_event)
 			}
 			break;
 		}
+#endif
 		case ALLEGRO_EVENT_JOYSTICK_AXIS: {
 			int stick = event->joystick.stick;
 			int axis = event->joystick.axis;
@@ -1435,7 +1437,7 @@ void unhide()
 	stack[0]->hidden = false;
 }
 
-void pauseEvents()
+void releaseKeysAndButtons()
 {
 	for (int j = 0; j < ALLEGRO_KEY_MAX; j++) {
 		if (keyState[j]) {
