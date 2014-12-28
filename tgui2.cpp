@@ -482,6 +482,10 @@ void maybe_make_mouse_event(ALLEGRO_EVENT *event)
 void handleEvent_pretransformed(void *allegro_event)
 {
 	ALLEGRO_EVENT *event = (ALLEGRO_EVENT *)allegro_event;
+
+	if (event->type == ALLEGRO_EVENT_JOYSTICK_AXIS && event->joystick.axis && al_get_joystick_num_buttons((ALLEGRO_JOYSTICK *)event->joystick.id) == 0) {
+		return;
+	}
 	
 #if defined ALLEGRO_ANDROID || defined ALLEGRO_IPHONE
 	maybe_make_mouse_event(event);
@@ -561,7 +565,6 @@ void handleEvent_pretransformed(void *allegro_event)
 			}
 			break;
 		}
-#ifndef ALLEGRO_ANDROID
 		case ALLEGRO_EVENT_KEY_DOWN: {
 			keyState[event->keyboard.keycode] = true;
 			for (size_t i = 0; i < stack[0]->widgets.size(); i++) {
@@ -615,7 +618,6 @@ void handleEvent_pretransformed(void *allegro_event)
 			}
 			break;
 		}
-#endif
 		case ALLEGRO_EVENT_JOYSTICK_AXIS: {
 			int stick = event->joystick.stick;
 			int axis = event->joystick.axis;

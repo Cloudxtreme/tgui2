@@ -14,5 +14,4 @@ add_library(tgui2 STATIC ${SOURCES})
 set_target_properties(tgui2
 	PROPERTIES
 	OUTPUT_NAME tgui2
-	COMPILE_FLAGS "-Wall -O3"
 	)

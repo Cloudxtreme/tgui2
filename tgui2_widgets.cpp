@@ -205,6 +205,9 @@ void TGUI_Splitter::addCollidingChildrenToVector(std::vector<tgui::TGUIWidget *>
 bool TGUI_Splitter::getAbsoluteChildPosition(tgui::TGUIWidget *widget, int *x, int *y)
 {
 	for (size_t i = 0; i < widgets.size(); i++) {
+		if (widgets[i] == NULL) {
+			continue;
+		}
 		if (widgets[i] == widget) {
 			int own_x, own_y;
 			tgui::determineAbsolutePosition(this, &own_x, &own_y);
@@ -229,6 +232,9 @@ bool TGUI_Splitter::getAbsoluteChildPosition(tgui::TGUIWidget *widget, int *x, i
 	}
 	
 	for (size_t i = 0; i < widgets.size(); i++) {
+		if (widgets[i] == NULL) {
+			continue;
+		}
 		if (widgets[i]->getAbsoluteChildPosition(widget, x, y)) {
 			return true;
 		}
