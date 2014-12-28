@@ -483,7 +483,7 @@ void handleEvent_pretransformed(void *allegro_event)
 {
 	ALLEGRO_EVENT *event = (ALLEGRO_EVENT *)allegro_event;
 
-	if (event->type == ALLEGRO_EVENT_JOYSTICK_AXIS && event->joystick.axis && al_get_joystick_num_buttons((ALLEGRO_JOYSTICK *)event->joystick.id) == 0) {
+	if (event->type == ALLEGRO_EVENT_JOYSTICK_AXIS && event->joystick.id && al_get_joystick_num_buttons((ALLEGRO_JOYSTICK *)event->joystick.id) == 0) {
 		return;
 	}
 	
