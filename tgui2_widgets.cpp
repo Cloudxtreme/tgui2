@@ -22,7 +22,7 @@ static void setDefaultColors()
 		return;
 	}
 
-	tguiWidgetsSetColors(al_color_name("yellow"), al_color_name("purple"));
+	tguiWidgetsSetColors(al_map_rgb(0xff, 0xff, 0x00), al_map_rgb(0x80, 0x00, 0x80));
 }
 
 TGUI_Extended_Widget::TGUI_Extended_Widget() :
@@ -362,7 +362,7 @@ void TGUI_Splitter::draw(int abs_x, int abs_y)
 	}
 
 	if (drawLines) {
-		al_draw_rectangle(xx+0.5, yy+0.5, xx+width-0.5, yy+height-0.5, al_color_name("black"), 1);
+		al_draw_rectangle(xx+0.5, yy+0.5, xx+width-0.5, yy+height-0.5, al_map_rgb(0x00, 0x00, 0x00), 1);
 	}
 
 	for (unsigned int i = 0; i < widgets.size(); i++) {
@@ -392,10 +392,10 @@ void TGUI_Splitter::draw(int abs_x, int abs_y)
 
 		if (drawLines) {
 			if (direction == TGUI_VERTICAL) {
-				al_draw_line(xx+0.5, yy+0.5, xx+w-0.5, yy+0.5, al_color_name("black"), 1);
+				al_draw_line(xx+0.5, yy+0.5, xx+w-0.5, yy+0.5, al_map_rgb(0x00, 0x00, 0x00), 1);
 			}
 			else {
-				al_draw_line(xx+1+0.5, yy+0.5, xx+1+0.5, yy+h-0.5, al_color_name("black"), 1);
+				al_draw_line(xx+1+0.5, yy+0.5, xx+1+0.5, yy+h-0.5, al_map_rgb(0x00, 0x00, 0x00), 1);
 			}
 		}
 
@@ -1022,10 +1022,10 @@ void TGUI_TextMenuItem::draw(int abs_x, int abs_y)
 	ALLEGRO_COLOR fore;
 	ALLEGRO_COLOR back;
 	
-	fore = al_color_name("black");
+	fore = al_map_rgb(0x00, 0x00, 0x00);
 
 	if (hover) {
-		back = al_color_name("white");
+		back = al_map_rgb(0xff, 0xff, 0xff);
 	}
 	else {
 		back = ::fore;
@@ -1048,8 +1048,8 @@ void TGUI_TextMenuItem::draw(int abs_x, int abs_y)
 	}
 	
 	// distinction for sub menus
-	al_draw_line(abs_x+1+0.5, abs_y+0.5, abs_x+1+0.5, abs_y+height-0.5, al_color_name("white"), 1);
-	al_draw_line(abs_x+2+0.5, abs_y+0.5, abs_x+2+0.5, abs_y+height-0.5, al_color_name("white"), 1);
+	al_draw_line(abs_x+1+0.5, abs_y+0.5, abs_x+1+0.5, abs_y+height-0.5, al_map_rgb(0xff, 0xff, 0xff), 1);
+	al_draw_line(abs_x+2+0.5, abs_y+0.5, abs_x+2+0.5, abs_y+height-0.5, al_map_rgb(0xff, 0xff, 0xff), 1);
 }
 
 tgui::TGUIWidget *TGUI_TextMenuItem::update()
@@ -1102,10 +1102,10 @@ void TGUI_CheckMenuItem::draw(int abs_x, int abs_y)
 	ALLEGRO_COLOR fore;
 
 	if (hover) {
-		fore = al_color_name("white");
+		fore = al_map_rgb(0xff, 0xff, 0xff);
 	}
 	else {
-		fore = al_color_name("black");
+		fore = al_map_rgb(0x00, 0x00, 0x00);
 	}
 	
 	al_draw_rectangle(abs_x+3.5, abs_y+3.5, abs_x+HEIGHT-3.5, abs_y+HEIGHT-3.5, fore, 1);
@@ -1161,10 +1161,10 @@ void TGUI_RadioMenuItem::draw(int abs_x, int abs_y)
 	ALLEGRO_COLOR fore;
 
 	if (hover) {
-		fore = al_color_name("white");
+		fore = al_map_rgb(0xff, 0xff, 0xff);
 	}
 	else {
-		fore = al_color_name("black");
+		fore = al_map_rgb(0x00, 0x00, 0x00);
 	}
 
 	// draw circle
@@ -1236,10 +1236,10 @@ void TGUI_SubMenuItem::draw(int abs_x, int abs_y)
 	ALLEGRO_COLOR fore;
 
 	if (hover) {
-		fore = al_color_name("white");
+		fore = al_map_rgb(0xff, 0xff, 0xff);
 	}
 	else {
-		fore = al_color_name("black");
+		fore = al_map_rgb(0x00, 0x00, 0x00);
 	}
 
 	al_draw_text(tgui::getFont(), fore, abs_x+x+width-al_get_text_width(tgui::getFont(), ">")-5, abs_y+y, 0, ">");
@@ -1356,7 +1356,7 @@ void TGUI_MenuBar::draw(int abs_x, int abs_y)
 	
 	for (unsigned int i = 0; i < menu_names.size(); i++) {
 		std::string name = menu_names[i];
-		al_draw_text(tgui::getFont(), al_color_name("white"), xx, abs_y, 0,
+		al_draw_text(tgui::getFont(), al_map_rgb(0xff, 0xff, 0xff), xx, abs_y, 0,
 			name.c_str());
 		int len = al_get_text_width(tgui::getFont(), name.c_str());
 		xx += len + PADDING;
@@ -1824,7 +1824,7 @@ void TGUI_Button::draw(int abs_x, int abs_y)
 	al_draw_line(x+0.5, y+height-0.5, x+width+0.5, y+height-0.5, back_darker, 1); // little longer to cover pixel
 	al_draw_line(x+width-0.5, y+0.5, x+width-0.5, y+height-0.5, back_darker, 1);
 
-	al_draw_text(tgui::getFont(), al_color_name("black"),
+	al_draw_text(tgui::getFont(), al_map_rgb(0x00, 0x00, 0x00),
 		x+(int)width/2-al_get_text_width(tgui::getFont(), text.c_str())/2,
 		y+(int)height/2-al_get_font_line_height(tgui::getFont())/2,
 		0, text.c_str());
@@ -1871,10 +1871,10 @@ void TGUI_TextField::draw(int abs_x, int abs_y)
 
 	this->height = al_get_font_line_height(tgui::getFont()) + PADDING*2;
 
-	ALLEGRO_COLOR bgcolor = al_color_name("white");
+	ALLEGRO_COLOR bgcolor = al_map_rgb(0xff, 0xff, 0xff);
 
 	al_draw_filled_rectangle(abs_x, abs_y, abs_x+width, abs_y+height, bgcolor);
-	al_draw_rectangle(abs_x+0.5, abs_y+0.5, abs_x+width-0.5, abs_y+height-0.5, al_color_name("black"), 1);
+	al_draw_rectangle(abs_x+0.5, abs_y+0.5, abs_x+width-0.5, abs_y+height-0.5, al_map_rgb(0x00, 0x00, 0x00), 1);
 	if (this == tgui::getFocussedWidget()) {
 		int len = cursorPos - offset;
 		std::string before = str.substr(offset, len);
@@ -1893,7 +1893,7 @@ void TGUI_TextField::draw(int abs_x, int abs_y)
 	int _x, _y, _w, _h;
 	al_get_clipping_rectangle(&_x, &_y, &_w, &_h);
 	tgui::setClip(abs_x+3, abs_y, width-4, height);
-	al_draw_text(tgui::getFont(), al_color_name("black"), abs_x+3, abs_y+PADDING, 0, str.substr(offset).c_str());
+	al_draw_text(tgui::getFont(), al_map_rgb(0x00, 0x00, 0x00), abs_x+3, abs_y+PADDING, 0, str.substr(offset).c_str());
 	al_set_clipping_rectangle(_x, _y, _w, _h);
 }
 
@@ -2070,7 +2070,7 @@ void TGUI_Frame::draw(int abs_x, int abs_y)
 	al_draw_filled_rectangle(abs_x, abs_y, abs_x+width,
 		abs_y+top, fore);
 
-	al_draw_text(tgui::getFont(), al_color_name("black"), abs_x+width/2,
+	al_draw_text(tgui::getFont(), al_map_rgb(0x00, 0x00, 0x00), abs_x+width/2,
 		abs_y+TITLE_PADDING, ALLEGRO_ALIGN_CENTRE, title.c_str());
 }
 
@@ -2163,7 +2163,7 @@ void TGUI_List::draw(int abs_x, int abs_y)
 		ALLEGRO_COLOR fore;
 		ALLEGRO_COLOR back;
 		int yy = abs_y + lh*i;
-		fore = al_color_name("black");
+		fore = al_map_rgb(0x00, 0x00, 0x00);
 		if ((int)i == selected) {
 			back = ::fore;
 			al_draw_filled_rectangle(abs_x, yy, abs_x+width, yy+lh, back);

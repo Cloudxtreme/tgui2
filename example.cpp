@@ -22,11 +22,11 @@ int main(int argc, char **argv)
 	tgui::init(display);
 	tgui::setFont(font);
 
-	ExFrame *exFrame = new ExFrame(al_color_name("blue"));
+	ExFrame *exFrame = new ExFrame(al_map_rgb(0x00, 0x00, 0xff));
 	exFrame->setSize(200, 200);
 	exFrame->setPosition(10, 10);
 
-	ExButton *exButton = new ExButton("Exit", al_color_name("gray"));
+	ExButton *exButton = new ExButton("Exit", al_map_rgb(0x80, 0x80, 0x80));
 
 	tgui::setNewWidgetParent(0);
 	tgui::addWidget(exFrame);
@@ -57,7 +57,7 @@ int main(int argc, char **argv)
 		}
 
 		if (ticks > 0) {
-			al_clear_to_color(al_color_name("black"));
+			al_clear_to_color(al_map_rgb(0x00, 0x00, 0x00));
 			tgui::draw();
 			al_flip_display();
 		}

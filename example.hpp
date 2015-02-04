@@ -77,7 +77,7 @@ public:
 
 		al_draw_text(
 			tgui::getFont(),
-			al_color_name("white"),
+			al_map_rgb(0xff, 0xff, 0xff),
 			abs_x+PADDING,
 			abs_y+PADDING,
 			0,
