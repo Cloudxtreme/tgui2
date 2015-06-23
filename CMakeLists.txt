@@ -4,6 +4,11 @@ project(tgui2 CXX)
 # Set USER_INCLUDE_PATH as may be necessary
 # e.g., -DUSER_INCLUDE_PATH=/home/trent/local/include
 
+if(APPLE)
+	SET(CMAKE_CXX_COMPILER "g++")
+	set(CMAKE_CXX_FLAGS "-stdlib=libstdc++")
+endif()
+
 if(NOT ("${USER_INCLUDE_PATH}" STREQUAL ""))
 	include_directories(${USER_INCLUDE_PATH})
 endif(NOT ("${USER_INCLUDE_PATH}" STREQUAL ""))
