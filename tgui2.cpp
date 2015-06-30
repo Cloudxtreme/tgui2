@@ -1,3 +1,5 @@
+#define ALLEGRO_STATICLINK
+
 #include "tgui2.hpp"
 
 #include <allegro5/allegro_primitives.h>
