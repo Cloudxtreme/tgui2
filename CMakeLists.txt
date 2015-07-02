@@ -10,10 +10,17 @@ endif(NOT ("${USER_INCLUDE_PATH}" STREQUAL ""))
 
 if(WIN32)
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_RELEASE} /MTd")
 endif()
 
 set(SOURCES tgui2.cpp tgui2_widgets.cpp)
 
-add_library(tgui2 STATIC ${SOURCES})
+if(CMAKE_BUILD_TYPE MATCHES Debug)
+	set(LIBNAME "tgui2d")
+else()
+	set(LIBNAME "tgui2")
+endif()
 
-target_link_libraries(tgui2 "allegro_monolith")
+add_library(${LIBNAME} STATIC ${SOURCES})
+
+target_link_libraries(${LIBNAME} "allegro_monolith")
