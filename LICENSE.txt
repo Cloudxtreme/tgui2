@@ -1,21 +1,18 @@
-This software is distributed under the terms of the Give it Your Own License,
-License, which gives you the right to re-license this software under any
-terms, or any existing license, you desire. Your new license terms shall not
-affect the license terms of any future licensee of the software, as distributed
-by the original author, nor shall your new license terms act retroactively on
-any prior licensee.
+Copyright (c) 2015 Nooskewl
 
-THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS". ANY EXPRESS OR IMPLIED
-WARRANTIES, INCLUDING, BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF
-MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. THE
-AUTHOR SHALL NOT UNDER ANY CIRCUMSTANCE BE HELD RESPONSIBLE FOR DAMAGE CAUSED
-BY THE USE OF THE SOFTWARE LICENSED HEREIN.
+This software is provided 'as-is', without any express or implied
+warranty. In no event will the authors be held liable for any damages
+arising from the use of this software.
 
---
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it
+freely, subject to the following restrictions:
 
-DejaVuSans.ttf (which is not part of TGUI per-se) is copyright of
-Bitstream, Inc: Copyright (c) 2003 by Bitstream, Inc. All Rights Reserved.
-Bitstream Vera is a trademark of Bitstream, Inc. DejaVu fonts can be obtained
-from http://dejavu-fonts.org/wiki/Main_Page. The full license is listed at
-http://dejavu-fonts.org/wiki/License.
+1. The origin of this software must not be misrepresented; you must not
+   claim that you wrote the original software. If you use this software
+   in a product, an acknowledgement in the product documentation would be
+   appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be
+   misrepresented as being the original software.
+3. This notice may not be removed or altered from any source distribution.
 
