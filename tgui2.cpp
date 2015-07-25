@@ -1201,6 +1201,11 @@ bool isKeyDown(int keycode) {
 	return keyState[keycode];
 }
 
+void clearKeyState()
+{
+	memset(keyState, 0, sizeof(keyState));
+}
+
 ALLEGRO_DISPLAY *getDisplay()
 {
 	return display;

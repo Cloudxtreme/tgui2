@@ -229,6 +229,7 @@ std::vector<TGUIWidget *> removeChildren(TGUIWidget *widget);
 void addPreDrawWidget(TGUIWidget *widget);
 void addPostDrawWidget(TGUIWidget *widget);
 bool isKeyDown(int keycode);
+void clearKeyState();
 void setScreenSize(int w, int h);
 ALLEGRO_DISPLAY *getDisplay();
 void drawFocusRectangle(int x, int y, int w, int h);
