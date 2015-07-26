@@ -16,7 +16,7 @@ endif()
 set(SOURCES tgui2.cpp tgui2_widgets.cpp)
 
 if(CMAKE_BUILD_TYPE MATCHES Debug)
-	set(LIBNAME "tgui2d")
+	set(LIBNAME "tgui2-debug")
 else()
 	set(LIBNAME "tgui2")
 endif()
